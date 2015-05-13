@@ -17,7 +17,7 @@ namespace GTAVMod_Speedometer
         UIContainer hudContainer;
         UIText speedText;
         const int PANEL_WIDTH = 66;
-        const int PANEL_HEIGT = 24;
+        const int PANEL_HEIGHT = 24;
         bool useMph;
 
         public SpeedoScript()
@@ -63,8 +63,8 @@ namespace GTAVMod_Speedometer
                     settings.GetValue<int>("UI", "ForecolorG", 0), settings.GetValue<int>("UI", "ForecolorB", 0));
 
                 // Set up HUD container
-                this.hudContainer = new UIContainer(new Point(UI.WIDTH / 2 - PANEL_WIDTH / 2, UI.HEIGHT - PANEL_HEIGT),
-                    new Size(PANEL_WIDTH, PANEL_HEIGT), backcolor);
+                this.hudContainer = new UIContainer(new Point(UI.WIDTH / 2 - PANEL_WIDTH / 2 + posOffset.X, UI.HEIGHT - PANEL_HEIGHT + posOffset.Y),
+                    new Size(PANEL_WIDTH, PANEL_HEIGHT), backcolor);
                 this.speedText = new UIText("SPEEDO", new Point(PANEL_WIDTH / 2, 0), 0.5f, forecolor, 4, true);
                 this.hudContainer.Items.Add(speedText);
             }
