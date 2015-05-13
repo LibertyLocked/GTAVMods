@@ -16,8 +16,6 @@ namespace GTAVMod_Speedometer
     {
         UIContainer hudContainer;
         UIText speedText;
-        const int PANEL_WIDTH = 66;
-        const int PANEL_HEIGHT = 24;
         bool useMph;
 
         public SpeedoScript()
@@ -51,21 +49,54 @@ namespace GTAVMod_Speedometer
                 ScriptSettings settings = ScriptSettings.Load(@".\scripts\Metric_Speedometer.ini");
                 
                 // Parse Core settings
-                this.useMph = settings.GetValue("Core", "UseMph", true);
+                this.useMph = settings.GetValue("Core", "UseMph", false);
 
                 // Parse UI settings
                 VerticalAlignment vAlign = (VerticalAlignment)Enum.Parse(typeof(VerticalAlignment), settings.GetValue("UI", "VertAlign"));
                 HorizontalAlign hAlign = (HorizontalAlign)Enum.Parse(typeof(HorizontalAlign), settings.GetValue("UI", "HorzAlign"));
                 Point posOffset = new Point(settings.GetValue<int>("UI", "OffsetX", 0), settings.GetValue<int>("UI", "OffsetY", 0));
-                Color backcolor = Color.FromArgb(settings.GetValue<int>("UI", "BackcolorA", 200), settings.GetValue<int>("UI", "BackcolorR", 237),
+				int pWidth = settings.GetValue("UI", "PanelWidth");
+				int pHeight = settings.GetValue("UI", "PanelHeight");
+				float fontSize = settings.GetValue("UI", "FontSize");
+				int fontStyle = settings.GetValue("UI", "FontStyle");
+				Color backcolor = Color.FromArgb(settings.GetValue<int>("UI", "BackcolorA", 200), settings.GetValue<int>("UI", "BackcolorR", 237),
                     settings.GetValue<int>("UI", "BackcolorG", 239), settings.GetValue<int>("UI", "BackcolorB", 241));
                 Color forecolor = Color.FromArgb(settings.GetValue<int>("UI", "ForecolorA", 255), settings.GetValue<int>("UI", "ForecolorR", 0),
                     settings.GetValue<int>("UI", "ForecolorG", 0), settings.GetValue<int>("UI", "ForecolorB", 0));
-
-                // Set up HUD container
-                this.hudContainer = new UIContainer(new Point(UI.WIDTH / 2 - PANEL_WIDTH / 2 + posOffset.X, UI.HEIGHT - PANEL_HEIGHT + posOffset.Y),
-                    new Size(PANEL_WIDTH, PANEL_HEIGHT), backcolor);
-                this.speedText = new UIText("SPEEDO", new Point(PANEL_WIDTH / 2, 0), 0.5f, forecolor, 4, true);
+				
+                // Set up UI elements
+				Point pos = new Point(0, 0);
+				
+				switch (vAlign)
+				{
+					case VerticalAlignment.Top:
+						pos.Y = 0;
+						break;
+					case VerticalAlignment.Center:
+						pos.Y = UI.HEIGHT / 2 - pHeight / 2;
+						break;
+					case VerticalAlignment.Bottom:
+						pos.Y = UI.HEIGHT - pHeight;
+						break;
+				}
+				pos.Y += posOffset.Y; // apply offset in Y
+				
+				switch (hAlign)
+				{
+					case HorizontalAlign.Left:
+						pos.X = 0;
+						break;
+					case HorizontalAlign.Center:
+						pos.X = UI.WIDTH / 2 - pWidth / 2;
+						break;
+					case HorizontalAlign.Right:
+						pos.X = UI.WIDTH - pWidth;
+						break;
+				}
+				pos.X += posOffset.X; // apply offset in X
+				
+                this.hudContainer = new UIContainer(pos, new Size(pWidth, pHeight), backcolor);
+                this.speedText = new UIText("SPEEDO", new Point(pWidth / 2, 0), fontSize, forecolor, fontStyle, true);
                 this.hudContainer.Items.Add(speedText);
             }
             catch (Exception exc)
