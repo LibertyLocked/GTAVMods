@@ -18,7 +18,7 @@ using GTA.Native;
 
 namespace GTAVMod_Speedometer
 {
-    public class SpeedoScript : Script
+    public class Metric_Speedometer : Script
     {
         UIContainer hudContainer;
         UIText speedText;
@@ -28,7 +28,7 @@ namespace GTAVMod_Speedometer
         Keys toggleKey;
         bool useMph;
 
-        public SpeedoScript()
+        public Metric_Speedometer()
         {
             // Read configuration
             ParseSettings();
