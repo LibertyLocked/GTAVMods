@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -55,10 +56,10 @@ namespace GTAVMod_Speedometer
                 VerticalAlignment vAlign = (VerticalAlignment)Enum.Parse(typeof(VerticalAlignment), settings.GetValue("UI", "VertAlign"));
                 HorizontalAlign hAlign = (HorizontalAlign)Enum.Parse(typeof(HorizontalAlign), settings.GetValue("UI", "HorzAlign"));
                 Point posOffset = new Point(settings.GetValue<int>("UI", "OffsetX", 0), settings.GetValue<int>("UI", "OffsetY", 0));
-				int pWidth = settings.GetValue("UI", "PanelWidth");
-				int pHeight = settings.GetValue("UI", "PanelHeight");
-				float fontSize = settings.GetValue("UI", "FontSize");
-				int fontStyle = settings.GetValue("UI", "FontStyle");
+				int pWidth = settings.GetValue("UI", "PanelWidth", 66);
+				int pHeight = settings.GetValue("UI", "PanelHeight", 24);
+                float fontSize = float.Parse(settings.GetValue("UI", "FontSize"), CultureInfo.InvariantCulture.NumberFormat);
+				int fontStyle = settings.GetValue("UI", "FontStyle", 4);
 				Color backcolor = Color.FromArgb(settings.GetValue<int>("UI", "BackcolorA", 200), settings.GetValue<int>("UI", "BackcolorR", 237),
                     settings.GetValue<int>("UI", "BackcolorG", 239), settings.GetValue<int>("UI", "BackcolorB", 241));
                 Color forecolor = Color.FromArgb(settings.GetValue<int>("UI", "ForecolorA", 255), settings.GetValue<int>("UI", "ForecolorR", 0),
