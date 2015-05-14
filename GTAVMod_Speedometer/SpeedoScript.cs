@@ -15,9 +15,12 @@ namespace GTAVMod_Speedometer
 {
     public class SpeedoScript : Script
     {
+        const string ScriptVersion = "1.12";
         UIContainer hudContainer;
         UIText speedText;
+        Keys toggleKey;
         bool useMph;
+        bool showSpeedo = true;
 
         public SpeedoScript()
         {
@@ -30,7 +33,7 @@ namespace GTAVMod_Speedometer
         void OnTick(object sender, EventArgs e)
         {
             Player player = Game.Player;
-            if (player != null && player.CanControlCharacter && player.IsAlive && player.Character.IsInVehicle())
+            if (showSpeedo && player != null && player.CanControlCharacter && player.IsAlive && player.Character.IsInVehicle())
             {
                 Vehicle vehicle = player.Character.CurrentVehicle;
                 float speedKph = vehicle.Speed * 3600 / 1000;   // convert from m/s to km/h
@@ -98,7 +101,7 @@ namespace GTAVMod_Speedometer
                 pos.X += posOffset.X; // apply offset in X
 
                 this.hudContainer = new UIContainer(pos, new Size(pWidth, pHeight), backcolor);
-                this.speedText = new UIText("SPEEDO", new Point(pWidth / 2, 0), fontSize, forecolor, fontStyle, true);
+                this.speedText = new UIText(String.Empty, new Point(pWidth / 2, 0), fontSize, forecolor, fontStyle, true);
                 this.hudContainer.Items.Add(speedText);
             }
             catch (Exception exc)
