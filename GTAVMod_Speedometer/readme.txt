@@ -1,12 +1,15 @@
 ﻿Simple Metric/Imperial Speedometer
 by libertylocked
 
-UPDATE 1.1: Now supports MPH, and more configurable parameters! 
+UPDATE 1.2: 
+Now toggleable! See the INI config for more info.
+Also it is a .cs release (instead of .dll), because planes are angry!
 
-A very simple and lite .NET script that shows your vehicle speed in km/h or mph. 
+UPDATE 1.1: 
+Now supports MPH, and more configurable parameters! 
 
-The filename is "Metric_Speedometer.dll", but it also supports MPH. 
-Details on how to change the config can be seen in the INI file. 
+A very simple and lite .NET script that shows your vehicle speed in KM/H or MPH. 
+Details on how to change the config can be found in the INI file. 
 
 Requirements: 
 1. ScriptHookV 
@@ -15,15 +18,17 @@ http://gtaforums.com/topic/788343-vrel-script-hook-v/
 http://gtaforums.com/topic/789907-vrel-community-script-hook-v-net/ 
 
 Installation: 
-1. Put "Metric_Speedometer.dll" and "Metric_Speedometer.ini" in "scripts" folder. Create "scripts" folder if it does not exist. 
+1. Put "Metric_Speedometer.cs" and "Metric_Speedometer.ini" in "scripts" folder. Create "scripts" folder if it does not exist. 
 2. Open "Metric_Speedometer.ini" and change the configuration to your preference. 
 
 FAQ: 
 1. How do I change the unit to MPH? 
 Set 'UseMph' to true in the INI. 
-2. How do I make the background transparent? 
+2. How do I toggle speedometer on/off?
+Set 'Toggleable' to true, and set 'ToggleKey' to a key you want to use as toggle in the INI.
+3. How do I make the background completely transparent? 
 Set 'BackcolorA' to 0 in the INI. 
-3. The speedometer doesn't show up in game! 
+4. The speedometer doesn't show up in game! 
 Check the INI file and make sure all the values are valid. Re-download the config file if necessary. 
 
 
