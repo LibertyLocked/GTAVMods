@@ -29,9 +29,10 @@ namespace GTAVMod_Speedometer
 
         void OnTick(object sender, EventArgs e)
         {
-            if (Game.Player.IsAlive && Game.Player.Character.IsInVehicle())
+            Player player = Game.Player;
+            if (player != null && player.CanControlCharacter && player.IsAlive && player.Character.IsInVehicle())
             {
-                Vehicle vehicle = Game.Player.Character.CurrentVehicle;
+                Vehicle vehicle = player.Character.CurrentVehicle;
                 float speedKph = vehicle.Speed * 3600 / 1000;   // convert from m/s to km/h
                 float speedMph = speedKph * 0.6213711916666667f; // convert km/h to mph
                 if (useMph)
