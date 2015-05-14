@@ -1,4 +1,9 @@
-﻿using System;
+﻿/*
+ * Simple Metric/Imperial Speedometer
+ * Author: libertylocked
+ * Version: 1.12
+*/
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
@@ -15,12 +20,13 @@ namespace GTAVMod_Speedometer
 {
     public class SpeedoScript : Script
     {
-        const string ScriptVersion = "1.12";
         UIContainer hudContainer;
         UIText speedText;
+        bool showSpeedo = true;
+
+        bool toggleable;
         Keys toggleKey;
         bool useMph;
-        bool showSpeedo = true;
 
         public SpeedoScript()
         {
@@ -28,22 +34,37 @@ namespace GTAVMod_Speedometer
             ParseSettings();
 
             this.Tick += OnTick;
+            if (this.toggleable) this.KeyDown += OnKeyDown;
         }
 
         void OnTick(object sender, EventArgs e)
         {
             Player player = Game.Player;
-            if (showSpeedo && player != null && player.CanControlCharacter && player.IsAlive && player.Character.IsInVehicle())
+            if (showSpeedo && player != null && player.CanControlCharacter && player.IsAlive 
+                && player.Character != null && player.Character.IsInVehicle())
             {
                 Vehicle vehicle = player.Character.CurrentVehicle;
                 float speedKph = vehicle.Speed * 3600 / 1000;   // convert from m/s to km/h
-                float speedMph = speedKph * 0.6213711916666667f; // convert km/h to mph
                 if (useMph)
+                {
+                    float speedMph = speedKph * 0.6213711916666667f; // convert km/h to mph
                     speedText.Text = speedMph.ToString("0") + " mph";
+                }
                 else
+                {
                     speedText.Text = speedKph.ToString("0") + " km/h";
+                }
 
                 hudContainer.Draw();
+            }
+        }
+
+        void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (toggleable && e.KeyCode == toggleKey)
+            {
+                showSpeedo = !showSpeedo;
+                //UI.Notify("Speedometer " + (showSpeedo ? "On" : "Off"));
             }
         }
 
@@ -55,10 +76,13 @@ namespace GTAVMod_Speedometer
 
                 // Parse Core settings
                 this.useMph = settings.GetValue("Core", "UseMph", false);
+                this.toggleable = settings.GetValue("Core", "Toggleable", false);
+                if (toggleable)
+                    this.toggleKey = (Keys)Enum.Parse(typeof(Keys), settings.GetValue("Core", "ToggleKey"), true);
 
                 // Parse UI settings
-                VerticalAlignment vAlign = (VerticalAlignment)Enum.Parse(typeof(VerticalAlignment), settings.GetValue("UI", "VertAlign"));
-                HorizontalAlign hAlign = (HorizontalAlign)Enum.Parse(typeof(HorizontalAlign), settings.GetValue("UI", "HorzAlign"));
+                VerticalAlignment vAlign = (VerticalAlignment)Enum.Parse(typeof(VerticalAlignment), settings.GetValue("UI", "VertAlign"), true);
+                HorizontalAlign hAlign = (HorizontalAlign)Enum.Parse(typeof(HorizontalAlign), settings.GetValue("UI", "HorzAlign"), true);
                 Point posOffset = new Point(settings.GetValue<int>("UI", "OffsetX", 0), settings.GetValue<int>("UI", "OffsetY", 0));
                 int pWidth = settings.GetValue("UI", "PanelWidth", 66);
                 int pHeight = settings.GetValue("UI", "PanelHeight", 24);
