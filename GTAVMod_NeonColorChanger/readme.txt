@@ -13,3 +13,9 @@ http://gtaforums.com/topic/789907-vrel-community-script-hook-v-net/
 Installation: 
 1. Put "RainbowNeon.cs" in "scripts" folder.
 
+
+Topic on GTAForums:
+http://gtaforums.com/topic/794556-vrelwip-rainbow-vehicle-neon/
+
+Topic on GTA5-Mods:
+https://www.gta5-mods.com/scripts/rainbow-vehicle-neon
