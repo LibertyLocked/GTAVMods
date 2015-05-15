@@ -2,7 +2,7 @@
 by libertylocked
 
 This mod makes neon kit color on a vehicle dynamic. It creates a rainbow transition on the neon color!
-No configuration needed.
+To adjust transition speed, open RainbowNeon.cs and change the TICK_INTERVAL (which is in milliseconds).
 
 Requirements: 
 1. ScriptHookV 
