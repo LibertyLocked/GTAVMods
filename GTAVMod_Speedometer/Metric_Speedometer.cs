@@ -1,7 +1,7 @@
 ﻿/*
  * Simple Metric/Imperial Speedometer
  * Author: libertylocked
- * Version: 1.2
+ * Version: 1.21
  */
 using System;
 using System.Drawing;
@@ -40,11 +40,11 @@ namespace GTAVMod_Speedometer
                 if (useMph)
                 {
                     float speedMph = speedKph * 0.6213711916666667f; // convert km/h to mph
-                    speedText.Text = speedMph.ToString("0") + " mph";
+                    speedText.Caption = speedMph.ToString("0") + " mph";
                 }
                 else
                 {
-                    speedText.Text = speedKph.ToString("0") + " km/h";
+                    speedText.Caption = speedKph.ToString("0") + " km/h";
                 }
 
                 hudContainer.Draw();
