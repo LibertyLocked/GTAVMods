@@ -2,7 +2,7 @@
  * Simple Metric/Imperial Speedometer
  * Author: libertylocked
  * Version: 1.2
-*/
+ */
 using System;
 using System.Drawing;
 using System.Globalization;
@@ -24,9 +24,7 @@ namespace GTAVMod_Speedometer
 
         public Metric_Speedometer()
         {
-            // Read configuration
             ParseSettings();
-
             this.Tick += OnTick;
             if (this.toggleable) this.KeyDown += OnKeyDown;
         }
@@ -89,7 +87,6 @@ namespace GTAVMod_Speedometer
 
                 // Set up UI elements
                 Point pos = new Point(0, 0);
-
                 switch (vAlign)
                 {
                     case VerticalAlignment.Top:
@@ -102,8 +99,6 @@ namespace GTAVMod_Speedometer
                         pos.Y = UI.HEIGHT - pHeight;
                         break;
                 }
-                pos.Y += posOffset.Y; // apply offset in Y
-
                 switch (hAlign)
                 {
                     case HorizontalAlign.Left:
@@ -116,7 +111,8 @@ namespace GTAVMod_Speedometer
                         pos.X = UI.WIDTH - pWidth;
                         break;
                 }
-                pos.X += posOffset.X; // apply offset in X
+                pos.Y += posOffset.Y;
+                pos.X += posOffset.X;
 
                 this.hudContainer = new UIContainer(pos, new Size(pWidth, pHeight), backcolor);
                 this.speedText = new UIText(String.Empty, new Point(pWidth / 2, 0), fontSize, forecolor, fontStyle, true);
