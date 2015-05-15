@@ -1,7 +1,7 @@
 ﻿/*
  * Rainbow Neon
  * Author: libertylocked
- * Version: 0.1
+ * Version: 0.11
  */
 using System;
 using System.Drawing;
@@ -42,7 +42,8 @@ namespace GTAVMod_NeonColorChanger
         void SetNeonColor(Vehicle vehicle, Color color)
         {
             // void _SET_VEHICLE_NEON_LIGHTS_COLOUR(Vehicle vehicleHandle, int r, int g, int b) // 0x8E0A582209A62695
-            Function.Call(Hash._0x8E0A582209A62695, vehicle, color.R, color.G, color.B);
+            //Function.Call(Hash._0x8E0A582209A62695, vehicle, color.R, color.G, color.B);
+            vehicle.NeonLightsColor = color;
         }
 
         // Given H,S,L in range of 0-1
