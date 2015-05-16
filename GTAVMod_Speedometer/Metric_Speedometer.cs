@@ -1,25 +1,35 @@
 ﻿/*
  * Simple Metric/Imperial Speedometer
  * Author: libertylocked
- * Version: 1.21
+ * Version: 1.30
  */
 using System;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 using GTA;
+using GTA.Native;
 
 namespace GTAVMod_Speedometer
 {
     public class Metric_Speedometer : Script
     {
-        UIContainer hudContainer;
+        UIContainer speedContainer;
         UIText speedText;
-        bool showSpeedo = true;
+        UIContainer odometerContainer;
+        UIText odometerText;
+        int speedoMode = 1; // 0 off, 1 simple, 2 detailed
+        float distanceKm = 0;
+        bool wasGamePaused = false;
 
+        ScriptSettings settings;
         bool toggleable;
         Keys toggleKey;
+        bool resettable;
+        Keys resetKey; // odometer reset key
         bool useMph;
 
         public Metric_Speedometer()
@@ -31,23 +41,48 @@ namespace GTAVMod_Speedometer
 
         void OnTick(object sender, EventArgs e)
         {
+            //bool isPauseMenuActive = Function.Call<bool>(Hash.IS_PAUSE_MENU_ACTIVE);
+            //if (!wasGamePaused && isPauseMenuActive)
+            //{
+            //    // Save stats upon pausing
+            //    Thread saveThread = new Thread(SaveStats);
+            //    saveThread.Start();
+            //}
+            //wasGamePaused = isPauseMenuActive;
+
             Player player = Game.Player;
-            if (showSpeedo && player != null && player.CanControlCharacter && player.IsAlive 
+            if (player != null && player.CanControlCharacter && player.IsAlive 
                 && player.Character != null && player.Character.IsInVehicle())
             {
                 Vehicle vehicle = player.Character.CurrentVehicle;
                 float speedKph = vehicle.Speed * 3600 / 1000;   // convert from m/s to km/h
+                float distanceLastFrame = vehicle.Speed * Game.LastFrameTime / 1000; // increment odometer counter
+                distanceKm += distanceLastFrame;
+                
                 if (useMph)
                 {
-                    float speedMph = speedKph * 0.6213711916666667f; // convert km/h to mph
+                    float speedMph = KmToMiles(speedKph);
+                    float distanceMiles = KmToMiles(distanceKm);
                     speedText.Caption = speedMph.ToString("0") + " mph";
+                    if (speedoMode == 2)
+                    {
+                        odometerText.Caption = distanceMiles.ToString("0.0") + " mi";
+                    }
                 }
                 else
                 {
                     speedText.Caption = speedKph.ToString("0") + " km/h";
+                    if (speedoMode == 2)
+                    {
+                        odometerText.Caption = distanceKm.ToString("0.0") + " km";
+                    }
                 }
 
-                hudContainer.Draw();
+                if (speedoMode != 0) speedContainer.Draw();
+                if (speedoMode == 2) // draw these widgets in detailed mode only
+                {
+                    odometerContainer.Draw();
+                }
             }
         }
 
@@ -55,8 +90,13 @@ namespace GTAVMod_Speedometer
         {
             if (toggleable && e.KeyCode == toggleKey)
             {
-                showSpeedo = !showSpeedo;
-                //UI.Notify("Speedometer " + (showSpeedo ? "On" : "Off"));
+                ++speedoMode;
+                speedoMode %= 3;
+                //UI.Notify("Speedometer Mode " + speedoMode);
+            }
+            if (resettable && speedoMode == 2 && e.KeyCode == resetKey)
+            {
+                distanceKm = 0;
             }
         }
 
@@ -64,13 +104,16 @@ namespace GTAVMod_Speedometer
         {
             try
             {
-                ScriptSettings settings = ScriptSettings.Load(@".\scripts\Metric_Speedometer.ini");
+                settings = ScriptSettings.Load(@".\scripts\Metric_Speedometer.ini");
 
                 // Parse Core settings
                 this.useMph = settings.GetValue("Core", "UseMph", false);
                 this.toggleable = settings.GetValue("Core", "Toggleable", false);
                 if (toggleable)
                     this.toggleKey = (Keys)Enum.Parse(typeof(Keys), settings.GetValue("Core", "ToggleKey"), true);
+                this.resettable = settings.GetValue("Core", "Resettable", false);
+                if (resettable)
+                    this.resetKey = (Keys)Enum.Parse(typeof(Keys), settings.GetValue("Core", "ResetKey"), true);
 
                 // Parse UI settings
                 VerticalAlignment vAlign = (VerticalAlignment)Enum.Parse(typeof(VerticalAlignment), settings.GetValue("UI", "VertAlign"), true);
@@ -85,38 +128,48 @@ namespace GTAVMod_Speedometer
                 Color forecolor = Color.FromArgb(settings.GetValue<int>("UI", "ForecolorA", 255), settings.GetValue<int>("UI", "ForecolorR", 0),
                     settings.GetValue<int>("UI", "ForecolorG", 0), settings.GetValue<int>("UI", "ForecolorB", 0));
 
+                // Load stats
+                //LoadStats();
+
                 // Set up UI elements
-                Point pos = new Point(0, 0);
+                Point pos = new Point(posOffset.X, posOffset.Y);
+                Point odometerPos = new Point(0, 0);
                 switch (vAlign)
                 {
                     case VerticalAlignment.Top:
-                        pos.Y = 0;
+                        pos.Y += 0;
+                        odometerPos.Y += pHeight; // below speed counter
                         break;
                     case VerticalAlignment.Center:
-                        pos.Y = UI.HEIGHT / 2 - pHeight / 2;
+                        pos.Y += UI.HEIGHT / 2 - pHeight / 2;
+                        odometerPos.Y += pHeight; // below speed counter
                         break;
                     case VerticalAlignment.Bottom:
-                        pos.Y = UI.HEIGHT - pHeight;
+                        pos.Y += UI.HEIGHT - pHeight;
+                        odometerPos.Y -= pHeight; // above speed counter
                         break;
                 }
                 switch (hAlign)
                 {
                     case HorizontalAlign.Left:
-                        pos.X = 0;
+                        pos.X += 0;
                         break;
                     case HorizontalAlign.Center:
-                        pos.X = UI.WIDTH / 2 - pWidth / 2;
+                        pos.X += UI.WIDTH / 2 - pWidth / 2;
                         break;
                     case HorizontalAlign.Right:
-                        pos.X = UI.WIDTH - pWidth;
+                        pos.X += UI.WIDTH - pWidth;
                         break;
                 }
-                pos.Y += posOffset.Y;
-                pos.X += posOffset.X;
+                odometerPos.X += pos.X;
+                odometerPos.Y += pos.Y;
 
-                this.hudContainer = new UIContainer(pos, new Size(pWidth, pHeight), backcolor);
+                this.speedContainer = new UIContainer(pos, new Size(pWidth, pHeight), backcolor);
                 this.speedText = new UIText(String.Empty, new Point(pWidth / 2, 0), fontSize, forecolor, fontStyle, true);
-                this.hudContainer.Items.Add(speedText);
+                this.speedContainer.Items.Add(speedText);
+                this.odometerContainer = new UIContainer(odometerPos, new Size(pWidth, pHeight), backcolor);
+                this.odometerText = new UIText(String.Empty, new Point(pWidth / 2, 0), fontSize, forecolor, fontStyle, true);
+                this.odometerContainer.Items.Add(odometerText);
             }
             catch (Exception exc)
             {
@@ -124,6 +177,36 @@ namespace GTAVMod_Speedometer
                 UI.ShowSubtitle(exc.ToString(), 10000);
                 this.Abort();
             }
+        }
+
+        void LoadStats()
+        {
+            try
+            {
+                using (StreamReader sr = new StreamReader(@".\scripts\Metric_Speedometer_Stats.txt"))
+                {
+                    bool distanceParsed = float.TryParse(sr.ReadLine(), out distanceKm);
+                }
+            }
+            catch { }
+        }
+
+        void SaveStats()
+        {
+            UI.Notify("Saving...");
+            try
+            {
+                using (StreamWriter sw = new StreamWriter((@".\scripts\Metric_Speedometer_Stats.txt"), false))
+                {
+                    sw.WriteLine(distanceKm);
+                }
+            }
+            catch { }
+        }
+
+        float KmToMiles(float km)
+        {
+            return km * 0.6213711916666667f;
         }
     }
 }
