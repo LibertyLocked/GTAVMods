@@ -23,7 +23,6 @@ namespace GTAVMod_Speedometer
         UIText odometerText;
         int speedoMode = 1; // 0 off, 1 simple, 2 detailed
         float distanceKm = 0;
-        bool wasGamePaused = false;
 
         ScriptSettings settings;
         bool toggleable;
@@ -42,8 +41,8 @@ namespace GTAVMod_Speedometer
 
         void OnTick(object sender, EventArgs e)
         {
-            bool isPausePressed = Function.Call<bool>(Hash.IS_DISABLED_CONTROL_JUST_PRESSED‏, 2, 199) ||
-                Function.Call<bool>(Hash.IS_DISABLED_CONTROL_JUST_PRESSED‏, 2, 200); // pause or pause alternate button
+            bool isPausePressed = Function.Call<bool>(Hash.IS_DISABLED_CONTROL_JUST_PRESSED, 2, 199) ||
+                Function.Call<bool>(Hash.IS_DISABLED_CONTROL_JUST_PRESSED, 2, 199); // pause or pause alternate button
             if (saveStats && isPausePressed) SaveStats();
 
             Player player = Game.Player;
