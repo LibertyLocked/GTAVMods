@@ -1,7 +1,7 @@
 ﻿/*
  * Simple Metric/Imperial Speedometer
  * Author: libertylocked
- * Version: 1.30
+ * Version: 1.30.1
  */
 using System;
 using System.Drawing;
@@ -29,6 +29,7 @@ namespace GTAVMod_Speedometer
         bool toggleable;
         Keys toggleKey;
         bool resettable;
+        bool saveStats;
         Keys resetKey; // odometer reset key
         bool useMph;
 
@@ -41,14 +42,9 @@ namespace GTAVMod_Speedometer
 
         void OnTick(object sender, EventArgs e)
         {
-            //bool isPauseMenuActive = Function.Call<bool>(Hash.IS_PAUSE_MENU_ACTIVE);
-            //if (!wasGamePaused && isPauseMenuActive)
-            //{
-            //    // Save stats upon pausing
-            //    Thread saveThread = new Thread(SaveStats);
-            //    saveThread.Start();
-            //}
-            //wasGamePaused = isPauseMenuActive;
+            bool isPausePressed = Function.Call<bool>(Hash.IS_DISABLED_CONTROL_JUST_PRESSED‏, 2, 199) ||
+                Function.Call<bool>(Hash.IS_DISABLED_CONTROL_JUST_PRESSED‏, 2, 200); // pause or pause alternate button
+            if (saveStats && isPausePressed) SaveStats();
 
             Player player = Game.Player;
             if (player != null && player.CanControlCharacter && player.IsAlive 
@@ -63,18 +59,20 @@ namespace GTAVMod_Speedometer
                 {
                     float speedMph = KmToMiles(speedKph);
                     float distanceMiles = KmToMiles(distanceKm);
-                    speedText.Caption = speedMph.ToString("0") + " mph";
+                    speedText.Caption = Math.Floor(speedMph).ToString("0") + " mph"; // floor speed mph
                     if (speedoMode == 2)
                     {
-                        odometerText.Caption = distanceMiles.ToString("0.0") + " mi";
+                        double truncated = Math.Floor(distanceMiles * 10) / 10.0;
+                        odometerText.Caption = truncated.ToString("0.0") + " mi";
                     }
                 }
                 else
                 {
-                    speedText.Caption = speedKph.ToString("0") + " km/h";
+                    speedText.Caption = Math.Floor(speedKph).ToString("0") + " km/h"; // floor speed km/h
                     if (speedoMode == 2)
                     {
-                        odometerText.Caption = distanceKm.ToString("0.0") + " km";
+                        double truncated = Math.Floor(distanceKm * 10) / 10.0;
+                        odometerText.Caption = truncated.ToString("0.0") + " km";
                     }
                 }
 
@@ -98,6 +96,10 @@ namespace GTAVMod_Speedometer
             {
                 distanceKm = 0;
             }
+            //if (saveStats && e.KeyCode == Keys.Escape)
+            //{
+            //    SaveStats();
+            //}
         }
 
         void ParseSettings()
@@ -114,6 +116,7 @@ namespace GTAVMod_Speedometer
                 this.resettable = settings.GetValue("Core", "Resettable", false);
                 if (resettable)
                     this.resetKey = (Keys)Enum.Parse(typeof(Keys), settings.GetValue("Core", "ResetKey"), true);
+                this.saveStats = settings.GetValue("Core", "SaveStats", false);
 
                 // Parse UI settings
                 VerticalAlignment vAlign = (VerticalAlignment)Enum.Parse(typeof(VerticalAlignment), settings.GetValue("UI", "VertAlign"), true);
@@ -129,7 +132,7 @@ namespace GTAVMod_Speedometer
                     settings.GetValue<int>("UI", "ForecolorG", 0), settings.GetValue<int>("UI", "ForecolorB", 0));
 
                 // Load stats
-                //LoadStats();
+                if (saveStats) LoadStats();
 
                 // Set up UI elements
                 Point pos = new Point(posOffset.X, posOffset.Y);
@@ -193,15 +196,20 @@ namespace GTAVMod_Speedometer
 
         void SaveStats()
         {
-            UI.Notify("Saving...");
             try
             {
-                using (StreamWriter sw = new StreamWriter((@".\scripts\Metric_Speedometer_Stats.txt"), false))
-                {
-                    sw.WriteLine(distanceKm);
-                }
+                Thread thread = new Thread(DoSaveStats);
+                thread.Start();
             }
             catch { }
+        }
+
+        void DoSaveStats()
+        {
+            using (StreamWriter sw = new StreamWriter((@".\scripts\Metric_Speedometer_Stats.txt"), false))
+            {
+                sw.WriteLine(distanceKm);
+            }
         }
 
         float KmToMiles(float km)
