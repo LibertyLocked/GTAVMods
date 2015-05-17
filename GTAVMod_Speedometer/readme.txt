@@ -1,7 +1,7 @@
 ﻿Simple Metric/Imperial Speedometer
 by libertylocked
 
-IMPORTANT: Please update your ScriptHookV DotNet to v0.8. The mod is not compatible with older versions of ScriptHookV DotNet. 
+IMPORTANT: Please update your ScriptHookV DotNet to v0.8 or above. The mod is not compatible with older versions of ScriptHookV DotNet. 
 
 v1.30: 
 Introducing detailed mode! It's completely optional, featuring a resettable odometer! More widgets coming soon! See the INI config for more info. 
