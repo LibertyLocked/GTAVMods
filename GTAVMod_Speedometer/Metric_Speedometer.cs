@@ -1,7 +1,7 @@
 ﻿/*
  * Simple Metric/Imperial Speedometer
  * Author: libertylocked
- * Version: 1.30.2
+ * Version: 1.30.3a
  */
 using System;
 using System.Drawing;
@@ -41,9 +41,12 @@ namespace GTAVMod_Speedometer
 
         void OnTick(object sender, EventArgs e)
         {
-            bool isPausePressed = Function.Call<bool>(Hash.IS_DISABLED_CONTROL_JUST_PRESSED, 2, 199) ||
-                Function.Call<bool>(Hash.IS_DISABLED_CONTROL_JUST_PRESSED, 2, 200); // pause or pause alternate button
-            if (saveStats && isPausePressed) SaveStats();
+            if (saveStats)
+            {
+                bool isPausePressed = Function.Call<bool>(Hash.IS_DISABLED_CONTROL_JUST_PRESSED, 2, 199) ||
+                    Function.Call<bool>(Hash.IS_DISABLED_CONTROL_JUST_PRESSED, 2, 200); // pause or pause alternate button
+                if (isPausePressed) SaveStats();
+            }
 
             Player player = Game.Player;
             if (player != null && player.CanControlCharacter && player.IsAlive 
