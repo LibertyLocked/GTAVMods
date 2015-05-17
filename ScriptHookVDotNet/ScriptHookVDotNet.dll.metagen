@@ -4289,6 +4289,8 @@ Class GTA.Entity: AutoLayout, AnsiClass, Class, Public, Abstract, BeforeFieldIni
     Exists(): PrivateScope, Public, HideBySig
     MarkAsNoLongerNeeded(): PrivateScope, Public, HideBySig
     Equals(Entity): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask
+    IsTouching(Entity): PrivateScope, Public, HideBySig
+    HasBeenDamagedBy(Entity): PrivateScope, Public, HideBySig
     GetHashCode(): PrivateScope, Public, Virtual, HideBySig
     op_Equality(Entity, Entity): PrivateScope, Public, Static, HideBySig, SpecialName
     op_Inequality(Entity, Entity): PrivateScope, Public, Static, HideBySig, SpecialName
@@ -4337,6 +4339,7 @@ Class GTA.Ped: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
     Void .ctor(Int32): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
   Properties:
     GTA.WeaponCollection Weapons 'get ' : 
+    Single WetnessHeight 'set' : 
     GTA.DrivingStyle DrivingStyle 'set' : 
     Single MaxDrivingSpeed 'set' : 
     Single DrivingSpeed 'set' : 
@@ -4418,6 +4421,7 @@ Class GTA.Ped: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
     set_DrivingSpeed(Single): PrivateScope, Public, HideBySig, SpecialName
     set_MaxDrivingSpeed(Single): PrivateScope, Public, HideBySig, SpecialName
     set_DrivingStyle(DrivingStyle): PrivateScope, Public, HideBySig, SpecialName
+    set_WetnessHeight(Single): PrivateScope, Public, HideBySig, SpecialName
     get_Weapons(): PrivateScope, Public, HideBySig, SpecialName
     IsInVehicle(Vehicle): PrivateScope, Public, HideBySig
     IsInVehicle(): PrivateScope, Public, HideBySig
@@ -4425,6 +4429,8 @@ Class GTA.Ped: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
     IsSittingInVehicle(): PrivateScope, Public, HideBySig
     GetRelationshipWithPed(Ped): PrivateScope, Public, HideBySig
     Kill(): PrivateScope, Public, HideBySig
+    ResetVisibleDamage(): PrivateScope, Public, HideBySig
+    ClearBloodDamage(): PrivateScope, Public, HideBySig
 Class GTA.Camera: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
     Void .ctor(Int32): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
   Properties:
@@ -6354,6 +6360,10 @@ Class GTA.Vehicle: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
     RemoveWindow(VehicleWindow): PrivateScope, Public, HideBySig
     SetNeonLightsOn(VehicleNeonLight, Boolean(HasFieldMarshal)): PrivateScope, Public, HideBySig
     IsNeonLightsOn(VehicleNeonLight): PrivateScope, Public, HideBySig
+    SoundHorn(Int32): PrivateScope, Public, HideBySig
+    IsTireBurst(Int32): PrivateScope, Public, HideBySig
+    BurstTire(Int32): PrivateScope, Public, HideBySig
+    FixTire(Int32): PrivateScope, Public, HideBySig
     CreatePedOnSeat(VehicleSeat, Model): PrivateScope, Public, HideBySig
 Struct GTA.VehicleColor: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
   :System.Enum
