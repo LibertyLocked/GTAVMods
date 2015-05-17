@@ -1,7 +1,7 @@
 ﻿/*
  * Simple Metric/Imperial Speedometer
  * Author: libertylocked
- * Version: 1.30.1
+ * Version: 1.30.2
  */
 using System;
 using System.Drawing;
