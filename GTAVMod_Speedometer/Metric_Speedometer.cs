@@ -42,7 +42,7 @@ namespace GTAVMod_Speedometer
         void OnTick(object sender, EventArgs e)
         {
             bool isPausePressed = Function.Call<bool>(Hash.IS_DISABLED_CONTROL_JUST_PRESSED, 2, 199) ||
-                Function.Call<bool>(Hash.IS_DISABLED_CONTROL_JUST_PRESSED, 2, 199); // pause or pause alternate button
+                Function.Call<bool>(Hash.IS_DISABLED_CONTROL_JUST_PRESSED, 2, 200); // pause or pause alternate button
             if (saveStats && isPausePressed) SaveStats();
 
             Player player = Game.Player;
