@@ -32,9 +32,6 @@ Installation:
 1. Put "Metric_Speedometer.cs" and "Metric_Speedometer.ini" in "scripts" folder. Create "scripts" folder if it does not exist. 
 2. Open "Metric_Speedometer.ini" and change the configuration to your preference. 
 
-Known issues:
-1. Odometer stat does not save. It'll be implemented soon.
-
 FAQ: 
 0. Does this mod have malware in it? 
 No! It's a .cs file, source code is verifiable. 
