@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GTAVMod_Speedometer", "GTAV
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GTAVMod_NeonColorChanger", "GTAVMod_NeonColorChanger\GTAVMod_NeonColorChanger.csproj", "{D4AC8153-A1F5-409C-8231-867085F94F5F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GTAVMod_RainbowPaint", "GTAVMod_RainbowPaint\GTAVMod_RainbowPaint.csproj", "{BEFFCBAF-2383-4BB5-9EB1-A8F70EA824AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{D4AC8153-A1F5-409C-8231-867085F94F5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4AC8153-A1F5-409C-8231-867085F94F5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4AC8153-A1F5-409C-8231-867085F94F5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEFFCBAF-2383-4BB5-9EB1-A8F70EA824AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEFFCBAF-2383-4BB5-9EB1-A8F70EA824AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEFFCBAF-2383-4BB5-9EB1-A8F70EA824AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEFFCBAF-2383-4BB5-9EB1-A8F70EA824AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
