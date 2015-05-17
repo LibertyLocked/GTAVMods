@@ -12,3 +12,7 @@ http://gtaforums.com/topic/789907-vrel-community-script-hook-v-net/
 
 Installation: 
 1. Put "RainbowPaint.cs" in "scripts" folder.
+
+
+Topic on GTA5-Mods:
+https://www.gta5-mods.com/scripts/rainbow-vehicle-paint
