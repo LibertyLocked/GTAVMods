@@ -1,7 +1,7 @@
 ﻿Simple Metric/Imperial Speedometer
 by libertylocked
 
-IMPORTANT: Please update your ScriptHookV DotNet to v0.8 or above. The mod is not compatible with older versions of ScriptHookV DotNet. 
+IMPORTANT: Please update your ScriptHookV DotNet to v0.8 or above. 
 
 v1.30: 
 Introducing detailed mode! It's completely optional, featuring a resettable odometer! More widgets coming soon! See the INI config for more info. 
@@ -31,6 +31,12 @@ http://gtaforums.com/topic/789907-vrel-community-script-hook-v-net/
 Installation: 
 1. Put "Metric_Speedometer.cs" and "Metric_Speedometer.ini" in "scripts" folder. Create "scripts" folder if it does not exist. 
 2. Open "Metric_Speedometer.ini" and change the configuration to your preference. 
+
+Troubleshooting: 
+1. Make sure you have the latest ScriptHookV and ScriptHookVDotNet, and they are placed in game root directory. 
+2. Make sure you have all the required redists for ScriptHookVDotNet installed (Microsoft .NET Framework 4.5 and Microsoft Visual C++ Redistributable Package for Visual Studio 2013 (x64)) 
+3. Check the INI config file and make sure all values are valid. Re-download the file if necessary. 
+4. The speedometer still won't show up? Check the ScriptHookVDotNet.log in game root directory and paste me the related logs. 
 
 FAQ: 
 0. Does this mod have malware in it? 

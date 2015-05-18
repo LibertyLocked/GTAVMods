@@ -1,7 +1,7 @@
 ﻿/*
  * Simple Metric/Imperial Speedometer
  * Author: libertylocked
- * Version: 1.30.3a
+ * Version: 1.30.3
  */
 using System;
 using System.Drawing;
@@ -11,18 +11,22 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 using GTA;
+using GTA.Math;
 using GTA.Native;
 
 namespace GTAVMod_Speedometer
 {
     public class Metric_Speedometer : Script
     {
+        #region Fields
+
         UIContainer speedContainer;
         UIText speedText;
         UIContainer odometerContainer;
         UIText odometerText;
         int speedoMode = 1; // 0 off, 1 simple, 2 detailed
         float distanceKm = 0;
+        Vector3 prevPos;
 
         ScriptSettings settings;
         bool toggleable;
@@ -32,12 +36,16 @@ namespace GTAVMod_Speedometer
         Keys resetKey; // odometer reset key
         bool useMph;
 
+        #endregion
+
         public Metric_Speedometer()
         {
             ParseSettings();
             this.Tick += OnTick;
             if (this.toggleable) this.KeyDown += OnKeyDown;
         }
+
+        #region Event handles
 
         void OnTick(object sender, EventArgs e)
         {
@@ -49,41 +57,16 @@ namespace GTAVMod_Speedometer
             }
 
             Player player = Game.Player;
-            if (player != null && player.CanControlCharacter && player.IsAlive 
-                && player.Character != null && player.Character.IsInVehicle())
+            if (player != null && player.CanControlCharacter && player.IsAlive && player.Character != null)
             {
-                Vehicle vehicle = player.Character.CurrentVehicle;
-                float speedKph = vehicle.Speed * 3600 / 1000;   // convert from m/s to km/h
-                float distanceLastFrame = vehicle.Speed * Game.LastFrameTime / 1000; // increment odometer counter
-                distanceKm += distanceLastFrame;
-                
-                if (useMph)
-                {
-                    float speedMph = KmToMiles(speedKph);
-                    float distanceMiles = KmToMiles(distanceKm);
-                    speedText.Caption = Math.Floor(speedMph).ToString("0") + " mph"; // floor speed mph
-                    if (speedoMode == 2)
-                    {
-                        double truncated = Math.Floor(distanceMiles * 10) / 10.0;
-                        odometerText.Caption = truncated.ToString("0.0") + " mi";
-                    }
-                }
-                else
-                {
-                    speedText.Caption = Math.Floor(speedKph).ToString("0") + " km/h"; // floor speed km/h
-                    if (speedoMode == 2)
-                    {
-                        double truncated = Math.Floor(distanceKm * 10) / 10.0;
-                        odometerText.Caption = truncated.ToString("0.0") + " km";
-                    }
-                }
-
-                if (speedoMode != 0) speedContainer.Draw();
-                if (speedoMode == 2) // draw these widgets in detailed mode only
-                {
-                    odometerContainer.Draw();
-                }
+                if (player.Character.IsInVehicle())
+                    UpdateAndDraw(player.Character.CurrentVehicle.Speed);
+                else if (IsPlayerRidingDeer(player.Character))
+                    UpdateAndDraw(GetSpeedFromPosChange(player.Character.Position, prevPos));
             }
+
+            if (player != null && player.Character != null)
+                prevPos = Game.Player.Character.Position;
         }
 
         void OnKeyDown(object sender, KeyEventArgs e)
@@ -98,10 +81,48 @@ namespace GTAVMod_Speedometer
             {
                 distanceKm = 0;
             }
-            //if (saveStats && e.KeyCode == Keys.Escape)
-            //{
-            //    SaveStats();
-            //}
+        }
+
+        #endregion
+
+        #region Private methods
+
+        /// <summary>
+        /// Updates and draws speedometer
+        /// </summary>
+        /// <param name="speedThisFrame">Speed in current frame, in m/s</param>
+        void UpdateAndDraw(float speedThisFrame)
+        {
+            float speedKph = speedThisFrame * 3600 / 1000; // convert from m/s to km/h
+            float distanceLastFrame = speedThisFrame * Game.LastFrameTime / 1000; // increment odometer counter
+            distanceKm += distanceLastFrame;
+
+            if (useMph)
+            {
+                float speedMph = KmToMiles(speedKph);
+                float distanceMiles = KmToMiles(distanceKm);
+                speedText.Caption = Math.Floor(speedMph).ToString("0") + " mph"; // floor speed mph
+                if (speedoMode == 2)
+                {
+                    double truncated = Math.Floor(distanceMiles * 10) / 10.0;
+                    odometerText.Caption = truncated.ToString("0.0") + " mi";
+                }
+            }
+            else
+            {
+                speedText.Caption = Math.Floor(speedKph).ToString("0") + " km/h"; // floor speed km/h
+                if (speedoMode == 2)
+                {
+                    double truncated = Math.Floor(distanceKm * 10) / 10.0;
+                    odometerText.Caption = truncated.ToString("0.0") + " km";
+                }
+            }
+
+            if (speedoMode != 0) speedContainer.Draw();
+            if (speedoMode == 2) // draw these widgets in detailed mode only
+            {
+                odometerContainer.Draw();
+            }
         }
 
         void ParseSettings()
@@ -214,9 +235,40 @@ namespace GTAVMod_Speedometer
             }
         }
 
-        float KmToMiles(float km)
+        float GetSpeedFromPosChange(Vector3 currPos, Vector3 prevPos)
+        {
+            float distance = currPos.DistanceTo(prevPos);
+            return distance / Game.LastFrameTime;
+        }
+
+        bool IsPlayerRidingDeer(Ped playerPed)
+        {
+            try
+            {
+                Ped attached = Function.Call<Ped>(Hash.GET_ENTITY_ATTACHED_TO, playerPed);
+                if (attached != null)
+                {
+                    PedHash attachedHash = (PedHash)attached.Model.Hash;
+                    return (attachedHash == PedHash.Deer);
+                }
+                else
+                    return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        #endregion
+
+        #region Helper methods
+        
+        static float KmToMiles(float km)
         {
             return km * 0.6213711916666667f;
         }
+
+        #endregion
     }
 }
