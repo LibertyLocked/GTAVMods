@@ -210,11 +210,11 @@ namespace GTAVMod_Speedometer
                 this.odometerText = new UIText(String.Empty, new Point(pWidth / 2, 0), fontSize, forecolor, fontStyle, true);
                 this.odometerContainer.Items.Add(odometerText);
             }
-            catch (Exception exc)
+            catch
             {
-                Wait(10000);
-                UI.ShowSubtitle(exc.ToString(), 10000);
-                this.Abort();
+                //Wait(10000);
+                //UI.ShowSubtitle(exc.ToString(), 10000);
+                //this.Abort();
             }
         }
 
