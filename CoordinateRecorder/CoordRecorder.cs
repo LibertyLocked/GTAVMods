@@ -1,5 +1,5 @@
 ﻿/*
- * Coordinate Recorder
+ * Coordinates Recorder
  * Author: libertylocked
  * Version: 1.0
  */
@@ -17,14 +17,15 @@ namespace CoordinateRecorder
 {
     public class CoordRecorder : Script
     {
-        const int PANEL_WIDTH = 302;
-        const int PANEL_HEIGHT = 17;
+        const int PANEL_WIDTH = 340;
+        const int PANEL_HEIGHT = 20;
         Color backColor = Color.FromArgb(100, 255, 255, 255);
         Color textColor = Color.Black; // just change this to whatever color you want
 
         UIContainer container;
         UIText text;
         Keys saveKey;
+        bool enable;
 
         public CoordRecorder()
         {
@@ -35,6 +36,11 @@ namespace CoordinateRecorder
 
         void OnTick(object sender, EventArgs e)
         {
+            if (!enable)
+            {
+                this.Abort();
+                return;
+            }
             Player player = Game.Player;
             if (player != null && player.CanControlCharacter && player.IsAlive && player.Character != null)
             {
@@ -60,10 +66,11 @@ namespace CoordinateRecorder
         void LoadSettings()
         {
             ScriptSettings settings = ScriptSettings.Load(@".\scripts\CoordRecorder.ini");
+            this.enable = settings.GetValue("Core", "Enable", true);
             this.saveKey = (Keys)Enum.Parse(typeof(Keys), settings.GetValue("Core", "SaveKey"), true);
 
             container = new UIContainer(new Point(UI.WIDTH / 2 - PANEL_WIDTH / 2, 0), new Size(PANEL_WIDTH, PANEL_HEIGHT), backColor);
-            text = new UIText("", new Point(PANEL_WIDTH / 2, 0), 0.36f, textColor, 7, true);
+            text = new UIText("", new Point(PANEL_WIDTH / 2, 0), 0.42f, textColor, 7, true);
             container.Items.Add(text);
         }
 
