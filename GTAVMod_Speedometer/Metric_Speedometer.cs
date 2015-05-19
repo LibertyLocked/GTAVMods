@@ -1,7 +1,7 @@
 ﻿/*
  * Simple Metric/Imperial Speedometer
  * Author: libertylocked
- * Version: 1.30.3
+ * Version: 1.30.4a
  */
 using System;
 using System.Drawing;
@@ -27,6 +27,7 @@ namespace GTAVMod_Speedometer
         int speedoMode = 1; // 0 off, 1 simple, 2 detailed
         float distanceKm = 0;
         Vector3 prevPos;
+        //float timeSinceLastDraw = 0; // used for onfoot speedo only
 
         ScriptSettings settings;
         bool toggleable;
@@ -60,9 +61,21 @@ namespace GTAVMod_Speedometer
             if (player != null && player.CanControlCharacter && player.IsAlive && player.Character != null)
             {
                 if (player.Character.IsInVehicle())
-                    UpdateAndDraw(player.Character.CurrentVehicle.Speed);
+                {
+                    Update(player.Character.CurrentVehicle.Speed);
+                    Draw();
+                }
                 else if (IsPlayerRidingDeer(player.Character))
-                    UpdateAndDraw(GetSpeedFromPosChange(player.Character.Position, prevPos));
+                {
+                    Update(GetSpeedFromPosChange(player.Character.Position, prevPos));
+                    Draw();
+                    //timeSinceLastDraw += Game.LastFrameTime;
+                    //if (timeSinceLastDraw > 0.5) // only draw twice per second when onfoot
+                    //{
+                    //    timeSinceLastDraw = 0;
+                    //    Draw();
+                    //}
+                }
             }
 
             if (player != null && player.Character != null)
@@ -87,11 +100,7 @@ namespace GTAVMod_Speedometer
 
         #region Private methods
 
-        /// <summary>
-        /// Updates and draws speedometer
-        /// </summary>
-        /// <param name="speedThisFrame">Speed in current frame, in m/s</param>
-        void UpdateAndDraw(float speedThisFrame)
+        void Update(float speedThisFrame)
         {
             float speedKph = speedThisFrame * 3600 / 1000; // convert from m/s to km/h
             float distanceLastFrame = speedThisFrame * Game.LastFrameTime / 1000; // increment odometer counter
@@ -117,12 +126,16 @@ namespace GTAVMod_Speedometer
                     odometerText.Caption = truncated.ToString("0.0") + " km";
                 }
             }
+        }
 
+        void Draw()
+        {
             if (speedoMode != 0) speedContainer.Draw();
             if (speedoMode == 2) // draw these widgets in detailed mode only
             {
                 odometerContainer.Draw();
             }
+
         }
 
         void ParseSettings()
