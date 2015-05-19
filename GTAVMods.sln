@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnalogueSpeedometer", "Anal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoordinateRecorder", "CoordinateRecorder\CoordinateRecorder.csproj", "{8A3039F2-5983-4BB0-90EA-58D0E925D03F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InternetRadio", "InternetRadio\InternetRadio.csproj", "{CCA684EC-DF58-42F8-AC74-0B4ED54B00F6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{8A3039F2-5983-4BB0-90EA-58D0E925D03F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A3039F2-5983-4BB0-90EA-58D0E925D03F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A3039F2-5983-4BB0-90EA-58D0E925D03F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCA684EC-DF58-42F8-AC74-0B4ED54B00F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCA684EC-DF58-42F8-AC74-0B4ED54B00F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCA684EC-DF58-42F8-AC74-0B4ED54B00F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCA684EC-DF58-42F8-AC74-0B4ED54B00F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
