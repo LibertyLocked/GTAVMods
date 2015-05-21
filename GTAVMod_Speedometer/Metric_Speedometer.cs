@@ -3,16 +3,18 @@
  * Author: libertylocked
  * Version: 1.30.4a
  */
+using GTA;
+using GTA.Math;
+using GTA.Native;
 using System;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
-using GTA;
-using GTA.Math;
-using GTA.Native;
 
 namespace GTAVMod_Speedometer
 {
@@ -27,7 +29,6 @@ namespace GTAVMod_Speedometer
         int speedoMode = 1; // 0 off, 1 simple, 2 detailed
         float distanceKm = 0;
         Vector3 prevPos;
-        //float timeSinceLastDraw = 0; // used for onfoot speedo only
 
         ScriptSettings settings;
         bool toggleable;
@@ -37,13 +38,24 @@ namespace GTAVMod_Speedometer
         Keys resetKey; // odometer reset key
         bool useMph;
 
+        GTA.Menu mainMenu;
+
         #endregion
 
         public Metric_Speedometer()
         {
             ParseSettings();
+            CreateMenus();
+
+            ActivateKey = Keys.F8;
+            UpKey = Keys.NumPad8;
+            DownKey = Keys.NumPad2;
+            LeftKey = Keys.NumPad4;
+            RightKey = Keys.NumPad6;
+            BackKey = Keys.NumPad0;
+
             this.Tick += OnTick;
-            if (this.toggleable) this.KeyDown += OnKeyDown;
+            this.KeyDown += OnKeyDown;
         }
 
         #region Event handles
@@ -61,21 +73,10 @@ namespace GTAVMod_Speedometer
             if (player != null && player.CanControlCharacter && player.IsAlive && player.Character != null)
             {
                 if (player.Character.IsInVehicle())
-                {
                     Update(player.Character.CurrentVehicle.Speed);
-                    Draw();
-                }
                 else if (IsPlayerRidingDeer(player.Character))
-                {
                     Update(GetSpeedFromPosChange(player.Character.Position, prevPos));
-                    Draw();
-                    //timeSinceLastDraw += Game.LastFrameTime;
-                    //if (timeSinceLastDraw > 0.5) // only draw twice per second when onfoot
-                    //{
-                    //    timeSinceLastDraw = 0;
-                    //    Draw();
-                    //}
-                }
+                Draw();
             }
 
             if (player != null && player.Character != null)
@@ -84,16 +85,10 @@ namespace GTAVMod_Speedometer
 
         void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (toggleable && e.KeyCode == toggleKey)
-            {
-                ++speedoMode;
-                speedoMode %= 3;
-                //UI.Notify("Speedometer Mode " + speedoMode);
-            }
-            if (resettable && speedoMode == 2 && e.KeyCode == resetKey)
-            {
+            if (toggleable && resettable && speedoMode == 2 && e.KeyData == (toggleKey | Keys.Shift))
                 distanceKm = 0;
-            }
+            else if (toggleable && e.KeyData == toggleKey)
+                speedoMode = ++speedoMode % 3;
         }
 
         #endregion
@@ -132,10 +127,7 @@ namespace GTAVMod_Speedometer
         {
             if (speedoMode != 0) speedContainer.Draw();
             if (speedoMode == 2) // draw these widgets in detailed mode only
-            {
                 odometerContainer.Draw();
-            }
-
         }
 
         void ParseSettings()
@@ -210,12 +202,27 @@ namespace GTAVMod_Speedometer
                 this.odometerText = new UIText(String.Empty, new Point(pWidth / 2, 0), fontSize, forecolor, fontStyle, true);
                 this.odometerContainer.Items.Add(odometerText);
             }
-            catch
-            {
-                //Wait(10000);
-                //UI.ShowSubtitle(exc.ToString(), 10000);
-                //this.Abort();
-            }
+            catch { }
+        }
+
+        void CreateMenus()
+        {
+            //GTA.MessageBox msg = new GTA.MessageBox("Menu can be re-enabled ", ActionYes, ActionNo);
+            MenuButton btnCore = new MenuButton("Core Settings", null);
+            MenuButton btnDisp = new MenuButton("Display Settings", null);
+            MenuButton btnExit = new MenuButton("", BtnExit_Activate);
+
+            this.mainMenu = new GTA.Menu("Speedometer Menu", new GTA.MenuItem[] { btnCore, btnDisp, btnExit });
+        }
+
+        void BtnExit_Activate()
+        {
+            //this.mainMenu.
+        }
+
+        void SaveSettings()
+        {
+            // TODO: Write UI parameters to config file
         }
 
         void LoadStats()
@@ -234,13 +241,13 @@ namespace GTAVMod_Speedometer
         {
             try
             {
-                Thread thread = new Thread(DoSaveStats);
+                Thread thread = new Thread(ThreadProc_DoSaveStats);
                 thread.Start();
             }
             catch { }
         }
 
-        void DoSaveStats()
+        void ThreadProc_DoSaveStats()
         {
             using (StreamWriter sw = new StreamWriter((@".\scripts\Metric_Speedometer_Stats.txt"), false))
             {
@@ -273,11 +280,7 @@ namespace GTAVMod_Speedometer
             }
         }
 
-        #endregion
-
-        #region Helper methods
-        
-        static float KmToMiles(float km)
+        float KmToMiles(float km)
         {
             return km * 0.6213711916666667f;
         }
