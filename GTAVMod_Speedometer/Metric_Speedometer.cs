@@ -489,7 +489,7 @@ namespace GTAVMod_Speedometer
                 settings.SetValue("UI", "OffsetY", posOffset.Y);
                 settings.SetValue("UI", "PanelWidth", pWidth);
                 settings.SetValue("UI", "PanelHeight", pHeight);
-                settings.SetValue("UI", "FontSize", fontSize);
+                settings.SetValue("UI", "FontSize", fontSize.ToString(CultureInfo.InvariantCulture));
                 settings.SetValue("UI", "BackcolorR", backcolor.R);
                 settings.SetValue("UI", "BackcolorG", backcolor.G);
                 settings.SetValue("UI", "BackcolorB", backcolor.B);
