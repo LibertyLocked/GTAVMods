@@ -1,7 +1,7 @@
 ﻿/*
  * Simple Metric/Imperial Speedometer
  * Author: libertylocked
- * Version: 2.0
+ * Version: 2.0.1
  */
 using System;
 using System.Collections.Generic;
@@ -22,7 +22,7 @@ namespace GTAVMod_Speedometer
     public class Metric_Speedometer : Script
     {
         #region Fields
-        const string SCRIPT_VERSION = "2.0";
+        const string SCRIPT_VERSION = "2.0.1";
         bool creditsShown = false;
         UIContainer speedContainer, odometerContainer;
         UIText speedText, odometerText;
@@ -345,14 +345,14 @@ namespace GTAVMod_Speedometer
                 });
             MenuButton btnAddA = new MenuButton("+ Opacity", delegate
                 {
-                    if (isChangingBackcolor) backcolor = IncrementARGB(backcolor, -5, 0, 0, 0);
-                    else forecolor = IncrementARGB(forecolor, -5, 0, 0, 0);
+                    if (isChangingBackcolor) backcolor = IncrementARGB(backcolor, 5, 0, 0, 0);
+                    else forecolor = IncrementARGB(forecolor, 5, 0, 0, 0);
                     SetupUIElements(); UpdateColorButtons(6);
                 });
             MenuButton btnSubA = new MenuButton("- Opacity", delegate
                 {
-                    if (isChangingBackcolor) backcolor = IncrementARGB(backcolor, 5, 0, 0, 0);
-                    else forecolor = IncrementARGB(forecolor, 5, 0, 0, 0);
+                    if (isChangingBackcolor) backcolor = IncrementARGB(backcolor, -5, 0, 0, 0);
+                    else forecolor = IncrementARGB(forecolor, -5, 0, 0, 0);
                     SetupUIElements(); UpdateColorButtons(7);
                 });
             colorMenuItems = new GTA.MenuItem[] { btnAddR, btnSubR, btnAddG, btnSubG, btnAddB, btnSubB, btnAddA, btnSubA };
