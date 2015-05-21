@@ -480,9 +480,9 @@ namespace GTAVMod_Speedometer
             try
             {
                 INIFile settings = new INIFile(@".\scripts\Metric_Speedometer.ini", true, true);
-                settings.SetValue("Core", "UseMph", useMph);
+                settings.SetValue("Core", "UseMph", useMph.ToString());
                 settings.SetValue("Core", "DisplayMode", speedoMode);
-                settings.SetValue("Core", "EnableSaving", enableSaving);
+                settings.SetValue("Core", "EnableSaving", enableSaving.ToString());
                 settings.SetValue("UI", "VertAlign", Enum.GetName(typeof(VerticalAlignment), vAlign));
                 settings.SetValue("UI", "HorzAlign", Enum.GetName(typeof(HorizontalAlign), hAlign));
                 settings.SetValue("UI", "OffsetX", posOffset.X);
@@ -957,8 +957,8 @@ namespace GTAVMod_Speedometer
         internal bool GetValue(string SectionName, string Key, bool DefaultValue)
         {
             string StringValue = GetValue(SectionName, Key, DefaultValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            int Value;
-            if (int.TryParse(StringValue, out Value)) return (Value != 0);
+            bool Value;
+            if (bool.TryParse(StringValue, out Value)) return (Value);
             return DefaultValue;
         }
 
@@ -1010,7 +1010,7 @@ namespace GTAVMod_Speedometer
         // *** Setters for various types ***
         internal void SetValue(string SectionName, string Key, bool Value)
         {
-            SetValue(SectionName, Key, (Value) ? ("1") : ("0"));
+            SetValue(SectionName, Key, (Value).ToString(CultureInfo.InvariantCulture));
         }
 
         internal void SetValue(string SectionName, string Key, int Value)
