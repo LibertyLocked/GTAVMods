@@ -1,7 +1,7 @@
 ﻿/*
  * Simple Metric/Imperial Speedometer
  * Author: libertylocked
- * Version: 2.0.2
+ * Version: 2.0.3
  */
 using System;
 using System.Collections.Generic;
@@ -22,7 +22,7 @@ namespace GTAVMod_Speedometer
     public class Metric_Speedometer : Script
     {
         // Constants
-        const string SCRIPT_VERSION = "2.0.2";
+        const string SCRIPT_VERSION = "2.0.3";
         const int NUM_FONTS = 8;
 
         #region Fields
@@ -253,7 +253,7 @@ namespace GTAVMod_Speedometer
             MenuButton btnClear = new MenuButton("Reset Odometer", delegate { distanceKm = 0; UI.Notify("Odometer reset"); });
             MenuButton btnCore = new MenuButton("Core Settings >", delegate { View.AddMenu(coreMenu); });
             MenuButton btnDisp = new MenuButton("Display Settings >", delegate { View.AddMenu(dispMenu); });
-            MenuButton btnReload = new MenuButton("Reload", delegate { SaveStats(); ParseSettings(); UI.Notify("Speedometer reloaded"); 
+            MenuButton btnReload = new MenuButton("Reload", delegate { ParseSettings(); SetupUIElements(); UI.Notify("Speedometer reloaded"); 
                 UpdateMainButtons(4); UpdateCoreButtons(0); UpdateDispButtons(0); UpdateColorButtons(0); });
             MenuButton btnBack = new MenuButton("Save & Exit", delegate { View.CloseAllMenus(); });
             mainMenuItems = new GTA.MenuItem[] { btnToggle, btnClear, btnCore, btnDisp, btnReload, btnBack };
@@ -303,7 +303,7 @@ namespace GTAVMod_Speedometer
                 });
             MenuButton btnBackcolor = new MenuButton("Back Color >", delegate { isChangingBackcolor = true; UpdateColorButtons(0); View.AddMenu(colorMenu); });
             MenuButton btnForecolor = new MenuButton("Fore Color >", delegate { isChangingBackcolor = false; UpdateColorButtons(0); View.AddMenu(colorMenu); });
-            MenuButton btnRstDefault = new MenuButton("Restore to Default", delegate { ResetUIToDefault(); });
+            MenuButton btnRstDefault = new MenuButton("Restore to Default", delegate { ResetUIToDefault(); UpdateDispButtons(8); });
             dispMenuItems = new GTA.MenuItem[] { btnVAlign, btnHAlign, btnFontStyle, btnAplyOffset, btnFontSize, btnPanelSize, btnBackcolor, btnForecolor, btnRstDefault };
             this.dispMenu = new GTA.Menu("Display Settings", dispMenuItems);
             this.dispMenu.HasFooter = false;
