@@ -1,7 +1,7 @@
 ﻿/*
  * Simple Metric/Imperial Speedometer
  * Author: libertylocked
- * Version: 2.0.3
+ * Version: 2.0.4a
  */
 using System;
 using System.Collections.Generic;
@@ -22,7 +22,7 @@ namespace GTAVMod_Speedometer
     public class Metric_Speedometer : Script
     {
         // Constants
-        const string SCRIPT_VERSION = "2.0.3";
+        const string SCRIPT_VERSION = "2.0.4a";
         const int NUM_FONTS = 8;
 
         #region Fields
@@ -31,7 +31,6 @@ namespace GTAVMod_Speedometer
         UIText speedText, odometerText;
         SpeedoMode speedoMode;
         float distanceKm = 0;
-        Vector3 prevPos;
 
         ScriptSettings settings;
         bool enableMenu;
@@ -95,13 +94,10 @@ namespace GTAVMod_Speedometer
                 }
                 else if (IsPlayerRidingDeer(player.Character))
                 {
-                    Update(GetSpeedFromPosChange(player.Character.Position, prevPos));
+                    Update(GetEntitySpeed(player.Character));
                     Draw();
                 }
             }
-
-            if (player != null && player.Character != null)
-                prevPos = Game.Player.Character.Position;
         }
 
         void OnKeyDown(object sender, KeyEventArgs e)
@@ -436,10 +432,17 @@ namespace GTAVMod_Speedometer
             }
         }
 
-        float GetSpeedFromPosChange(Vector3 currPos, Vector3 prevPos)
+        float GetEntitySpeed(Entity entity)
         {
-            float distance = currPos.DistanceTo(prevPos);
-            return distance / Game.LastFrameTime;
+            try
+            {
+                float speed = Function.Call<float>(Hash.GET_ENTITY_SPEED, entity);
+                return speed;
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
         bool IsPlayerRidingDeer(Ped playerPed)
