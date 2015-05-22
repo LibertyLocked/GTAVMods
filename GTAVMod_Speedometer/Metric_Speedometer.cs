@@ -1,7 +1,7 @@
 ﻿/*
  * Simple Metric/Imperial Speedometer
  * Author: libertylocked
- * Version: 2.0.1
+ * Version: 2.0.2
  */
 using System;
 using System.Collections.Generic;
@@ -21,12 +21,15 @@ namespace GTAVMod_Speedometer
 {
     public class Metric_Speedometer : Script
     {
+        // Constants
+        const string SCRIPT_VERSION = "2.0.2";
+        const int NUM_FONTS = 8;
+
         #region Fields
-        const string SCRIPT_VERSION = "2.0.1";
         bool creditsShown = false;
         UIContainer speedContainer, odometerContainer;
         UIText speedText, odometerText;
-        int speedoMode; // 0 off, 1 simple, 2 detailed
+        SpeedoMode speedoMode;
         float distanceKm = 0;
         Vector3 prevPos;
 
@@ -56,6 +59,7 @@ namespace GTAVMod_Speedometer
         public Metric_Speedometer()
         {
             ParseSettings();
+            SetupUIElements();
             SetupMenus();
 
             UpKey = Keys.NumPad8;
@@ -65,7 +69,7 @@ namespace GTAVMod_Speedometer
             ActivateKey = Keys.NumPad5;
             BackKey = Keys.NumPad0;
 
-            this.View.MenuTransitions = false; // because transition looks nice
+            this.View.MenuTransitions = false; // because transition looksnice/doesnotlooknice
             this.Tick += OnTick;
             this.KeyDown += OnKeyDown;
         }
@@ -129,7 +133,7 @@ namespace GTAVMod_Speedometer
                 float speedMph = KmToMiles(speedKph);
                 float distanceMiles = KmToMiles(distanceKm);
                 speedText.Caption = Math.Floor(speedMph).ToString("0") + " mph"; // floor speed mph
-                if (speedoMode == 2)
+                if (speedoMode == SpeedoMode.Detailed)
                 {
                     double truncated = Math.Floor(distanceMiles * 10) / 10.0;
                     odometerText.Caption = truncated.ToString("0.0") + " mi";
@@ -138,7 +142,7 @@ namespace GTAVMod_Speedometer
             else
             {
                 speedText.Caption = Math.Floor(speedKph).ToString("0") + " km/h"; // floor speed km/h
-                if (speedoMode == 2)
+                if (speedoMode == SpeedoMode.Detailed)
                 {
                     double truncated = Math.Floor(distanceKm * 10) / 10.0;
                     odometerText.Caption = truncated.ToString("0.0") + " km";
@@ -148,8 +152,8 @@ namespace GTAVMod_Speedometer
 
         void Draw()
         {
-            if (speedoMode != 0) speedContainer.Draw();
-            if (speedoMode == 2) // draw these widgets in detailed mode only
+            if (speedoMode != SpeedoMode.Off) speedContainer.Draw();
+            if (speedoMode == SpeedoMode.Detailed) // draw these widgets in detailed mode only
                 odometerContainer.Draw();
         }
 
@@ -161,7 +165,7 @@ namespace GTAVMod_Speedometer
 
                 // Parse Core settings
                 this.useMph = settings.GetValue("Core", "UseMph", false);
-                this.speedoMode = settings.GetValue("Core", "DisplayMode", 1);
+                this.speedoMode = (SpeedoMode)settings.GetValue<int>("Core", "DisplayMode", 1);
                 this.enableMenu = settings.GetValue("Core", "EnableMenu", true);
                 if (enableMenu)
                     this.menuKey = (Keys)Enum.Parse(typeof(Keys), settings.GetValue("Core", "MenuKey"), true);
@@ -182,9 +186,6 @@ namespace GTAVMod_Speedometer
 
                 // Load stats
                 if (enableSaving) LoadStats();
-
-                // Set up UI elements
-                SetupUIElements();
             }
             catch { UI.Notify("~r~failed to load speedometer config"); }
         }
@@ -248,7 +249,7 @@ namespace GTAVMod_Speedometer
         void SetupMenus()
         {
             // Create main menu
-            MenuButton btnToggle = new MenuButton("", delegate { speedoMode = ++speedoMode % 3; UpdateMainButtons(0); });
+            MenuButton btnToggle = new MenuButton("", delegate { speedoMode = (SpeedoMode)(((int)speedoMode + 1) % Enum.GetNames(typeof(SpeedoMode)).Length); UpdateMainButtons(0); });
             MenuButton btnClear = new MenuButton("Reset Odometer", delegate { distanceKm = 0; UI.Notify("Odometer reset"); });
             MenuButton btnCore = new MenuButton("Core Settings >", delegate { View.AddMenu(coreMenu); });
             MenuButton btnDisp = new MenuButton("Display Settings >", delegate { View.AddMenu(dispMenu); });
@@ -262,7 +263,7 @@ namespace GTAVMod_Speedometer
             // Create core menu
             MenuButton btnUseMph = new MenuButton("", delegate { useMph = !useMph; UpdateCoreButtons(0); });
             MenuButton btnEnableSaving = new MenuButton("", delegate { enableSaving = !enableSaving; UpdateCoreButtons(1); });
-            //MenuButton btnEnableMenu = new MenuButton("Disable Menu Key", delegate { enableMenu = !enableMenu; SaveSettings(); UpdateCoreButtons(2); });
+            //MenuButton btnEnableMenu = new MenuButton("Disable Menu Key", delegate { enableMenu = !enableMenu; UpdateCoreButtons(2); });
             coreMenuItems = new GTA.MenuItem[] { btnUseMph, btnEnableSaving };
             this.coreMenu = new GTA.Menu("Core Settings", coreMenuItems);
             this.coreMenu.HasFooter = false;
@@ -270,6 +271,7 @@ namespace GTAVMod_Speedometer
             // Create display menu
             MenuButton btnVAlign = new MenuButton("", delegate { vAlign = (VerticalAlignment)(((int)vAlign + 1) % 3); posOffset.Y = 0; SetupUIElements(); UpdateDispButtons(0); });
             MenuButton btnHAlign = new MenuButton("", delegate { hAlign = (HorizontalAlign)(((int)hAlign + 1) % 3); posOffset.X = 0; SetupUIElements(); UpdateDispButtons(1); });
+            MenuButton btnFontStyle = new MenuButton("", delegate { fontStyle = ++fontStyle % NUM_FONTS; SetupUIElements(); UpdateDispButtons(2); });
             MenuButton btnFontSize = new MenuButton("Font Size >", delegate
                 {
                     GTA.MenuButton btnAddSize = new MenuButton("+ Font Size", delegate { fontSize += 0.02f; SetupUIElements(); });
@@ -302,7 +304,7 @@ namespace GTAVMod_Speedometer
             MenuButton btnBackcolor = new MenuButton("Back Color >", delegate { isChangingBackcolor = true; UpdateColorButtons(0); View.AddMenu(colorMenu); });
             MenuButton btnForecolor = new MenuButton("Fore Color >", delegate { isChangingBackcolor = false; UpdateColorButtons(0); View.AddMenu(colorMenu); });
             MenuButton btnRstDefault = new MenuButton("Restore to Default", delegate { ResetUIToDefault(); });
-            dispMenuItems = new GTA.MenuItem[] { btnVAlign, btnHAlign, btnAplyOffset, btnFontSize, btnPanelSize, btnBackcolor, btnForecolor, btnRstDefault };
+            dispMenuItems = new GTA.MenuItem[] { btnVAlign, btnHAlign, btnFontStyle, btnAplyOffset, btnFontSize, btnPanelSize, btnBackcolor, btnForecolor, btnRstDefault };
             this.dispMenu = new GTA.Menu("Display Settings", dispMenuItems);
             this.dispMenu.HasFooter = false;
 
@@ -368,11 +370,7 @@ namespace GTAVMod_Speedometer
 
         void UpdateMainButtons(int selectedIndex)
         {
-            string displayModeStr;
-            if (speedoMode == 1) displayModeStr = "Simple";
-            else if (speedoMode == 2) displayModeStr = "Detailed";
-            else displayModeStr = "Off";
-            mainMenuItems[0].Caption = "Toggle Display: " + displayModeStr; // toggle button's caption
+            mainMenuItems[0].Caption = "Toggle Display: " + speedoMode.ToString(); // toggle button's caption
             mainMenu.Initialize(); // reinit main menu
             for (int i = 0; i < selectedIndex; i++)
                 mainMenu.OnChangeSelection(true);
@@ -380,8 +378,8 @@ namespace GTAVMod_Speedometer
 
         void UpdateCoreButtons(int selectedIndex)
         {
-            coreMenuItems[0].Caption = "Use MPH: " + useMph;
-            coreMenuItems[1].Caption = "Save Odometer: " + enableSaving;
+            coreMenuItems[0].Caption = "Speed Unit: " + (useMph ? "Imperial" : "Metric");
+            coreMenuItems[1].Caption = "Save Odometer: " + (enableSaving ? "On" : "Off");
             //coreMenuItems[2].Caption = "Enable Menu Key: " + enableMenu;
             coreMenu.Initialize(); // reinit core menu
             for (int i = 0; i < selectedIndex; i++)
@@ -392,6 +390,7 @@ namespace GTAVMod_Speedometer
         {
             dispMenuItems[0].Caption = "Vertical: " + System.Enum.GetName(typeof(VerticalAlignment), vAlign);
             dispMenuItems[1].Caption = "Horizontal: " + System.Enum.GetName(typeof(HorizontalAlign), hAlign);
+            dispMenuItems[2].Caption = "Font Style: " + fontStyle;
             dispMenu.Initialize(); // reinit disp menu
             for (int i = 0; i < selectedIndex; i++)
                 dispMenu.OnChangeSelection(true);
@@ -481,7 +480,7 @@ namespace GTAVMod_Speedometer
             {
                 INIFile settings = new INIFile(@".\scripts\Metric_Speedometer.ini", true, true);
                 settings.SetValue("Core", "UseMph", useMph.ToString());
-                settings.SetValue("Core", "DisplayMode", speedoMode);
+                settings.SetValue("Core", "DisplayMode", (int)speedoMode);
                 settings.SetValue("Core", "EnableSaving", enableSaving.ToString());
                 settings.SetValue("UI", "VertAlign", Enum.GetName(typeof(VerticalAlignment), vAlign));
                 settings.SetValue("UI", "HorzAlign", Enum.GetName(typeof(HorizontalAlign), hAlign));
@@ -490,6 +489,7 @@ namespace GTAVMod_Speedometer
                 settings.SetValue("UI", "PanelWidth", pWidth);
                 settings.SetValue("UI", "PanelHeight", pHeight);
                 settings.SetValue("UI", "FontSize", fontSize.ToString(CultureInfo.InvariantCulture));
+                settings.SetValue("UI", "FontStyle", fontStyle.ToString());
                 settings.SetValue("UI", "BackcolorR", backcolor.R);
                 settings.SetValue("UI", "BackcolorG", backcolor.G);
                 settings.SetValue("UI", "BackcolorB", backcolor.B);
@@ -520,6 +520,13 @@ namespace GTAVMod_Speedometer
             script.SaveSettings();
             base.OnClose();
         }
+    }
+
+    enum SpeedoMode
+    {
+        Off = 0,
+        Simple = 1,
+        Detailed = 2,
     }
 
     #region INI File class
