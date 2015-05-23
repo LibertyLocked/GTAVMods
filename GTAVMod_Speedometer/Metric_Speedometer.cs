@@ -259,7 +259,7 @@ namespace GTAVMod_Speedometer
                     View.AddMenu(extraMenu);
                 });
             MenuButton btnReload = new MenuButton("Reload", delegate { ParseSettings(); SetupUIElements(); UI.Notify("Speedometer reloaded"); 
-                UpdateMainButtons(4); UpdateCoreButtons(0); UpdateDispButtons(0); UpdateColorButtons(0); });
+                UpdateMainButtons(5); UpdateCoreButtons(0); UpdateDispButtons(0); UpdateColorButtons(0); });
             MenuButton btnBack = new MenuButton("Save & Exit", delegate { View.CloseAllMenus(); });
             mainMenuItems = new GTA.MenuItem[] { btnToggle, btnClear, btnCore, btnDisp, btnExtra, btnReload, btnBack };
             this.mainMenu = new MySettingsMenu("Speedometer v" + SCRIPT_VERSION, mainMenuItems, this);
