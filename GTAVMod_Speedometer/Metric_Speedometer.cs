@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
-using System.Runtime.InteropServices;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -109,6 +109,7 @@ namespace GTAVMod_Speedometer
                 if (!creditsShown)
                 {
                     UI.Notify("Speedometer ~r~v" + SCRIPT_VERSION + " ~s~by ~b~libertylocked");
+                    try { if (!CheckUpdates()) UI.Notify("New version available"); } catch { }
                     creditsShown = true;
                 }
             }
@@ -473,6 +474,15 @@ namespace GTAVMod_Speedometer
         {
             return Color.FromArgb(Math.Max(Math.Min(color.A + da, 255), 0), Math.Max(Math.Min(color.R + dr, 255), 0),
                 Math.Max(Math.Min(color.G + dg, 255), 0), Math.Max(Math.Min(color.B + db, 255), 0));
+        }
+
+        bool CheckUpdates()
+        {
+            WebClient client = new WebClient();
+            Stream stream = client.OpenRead(@"https://raw.githubusercontent.com/LibertyLocked/GTAVMods/release/GTAVMod_Speedometer/version.txt");
+            StreamReader reader = new StreamReader(stream);
+            string latestVer = reader.ReadToEnd();
+            return SCRIPT_VERSION == latestVer;
         }
 
         #endregion
