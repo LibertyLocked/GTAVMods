@@ -499,9 +499,9 @@ namespace GTAVMod_Speedometer
                 StreamReader reader = new StreamReader(stream);
                 string latestVer = reader.ReadToEnd();
                 if (SCRIPT_VERSION == latestVer) UI.Notify("~g~Speedometer is up to date");
-                else UI.Notify("~b~New version is available on gta5-mods.com");
+                else UI.Notify("~y~New version is available on gta5-mods.com");
             }
-            catch { UI.Notify("~r~Failed to check for updates!"); }
+            catch { UI.Notify("~r~failed to check for updates"); }
         }
 
         #endregion
