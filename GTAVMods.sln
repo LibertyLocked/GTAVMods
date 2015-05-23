@@ -5,8 +5,6 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GTAVMod_AngryPeds", "GTAVMod_AngryPeds\GTAVMod_AngryPeds.csproj", "{E41CAE94-CB59-41C3-B19C-5D0C6702D2DA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GTAVMod_Speedometer", "GTAVMod_Speedometer\GTAVMod_Speedometer.csproj", "{5F5204AF-92D8-430D-A66C-E8C45CBCDF33}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GTAVMod_NeonColorChanger", "GTAVMod_NeonColorChanger\GTAVMod_NeonColorChanger.csproj", "{D4AC8153-A1F5-409C-8231-867085F94F5F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GTAVMod_RainbowPaint", "GTAVMod_RainbowPaint\GTAVMod_RainbowPaint.csproj", "{BEFFCBAF-2383-4BB5-9EB1-A8F70EA824AD}"
@@ -29,10 +27,6 @@ Global
 		{E41CAE94-CB59-41C3-B19C-5D0C6702D2DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E41CAE94-CB59-41C3-B19C-5D0C6702D2DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E41CAE94-CB59-41C3-B19C-5D0C6702D2DA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5F5204AF-92D8-430D-A66C-E8C45CBCDF33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5F5204AF-92D8-430D-A66C-E8C45CBCDF33}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5F5204AF-92D8-430D-A66C-E8C45CBCDF33}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5F5204AF-92D8-430D-A66C-E8C45CBCDF33}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D4AC8153-A1F5-409C-8231-867085F94F5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D4AC8153-A1F5-409C-8231-867085F94F5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4AC8153-A1F5-409C-8231-867085F94F5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
