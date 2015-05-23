@@ -23,6 +23,7 @@ namespace GTAVMod_Speedometer
     {
         // Constants
         const string SCRIPT_VERSION = "2.0.4a";
+        const string URL_VERSIONFILE = @"https://raw.githubusercontent.com/LibertyLocked/GTAVMods/release/GTAVMod_Speedometer/version.txt"; // it's just a txt, chill out people
         const int NUM_FONTS = 8;
 
         #region Fields
@@ -108,8 +109,7 @@ namespace GTAVMod_Speedometer
                 this.View.AddMenu(mainMenu);
                 if (!creditsShown)
                 {
-                    UI.Notify("Speedometer ~r~v" + SCRIPT_VERSION + " ~s~by ~b~libertylocked");
-                    try { if (!CheckUpdates()) UI.Notify("New version available"); } catch { }
+                    ShowCredits();
                     creditsShown = true;
                 }
             }
@@ -250,10 +250,18 @@ namespace GTAVMod_Speedometer
             MenuButton btnClear = new MenuButton("Reset Odometer", delegate { distanceKm = 0; UI.Notify("Odometer reset"); });
             MenuButton btnCore = new MenuButton("Core Settings >", delegate { View.AddMenu(coreMenu); });
             MenuButton btnDisp = new MenuButton("Display Settings >", delegate { View.AddMenu(dispMenu); });
+            MenuButton btnExtra = new MenuButton("Extras >", delegate
+                {
+                    MenuButton btnShowCredits = new MenuButton("Show Credits", ShowCredits);
+                    MenuButton btnUpdates = new MenuButton("Check for Updates", CheckForUpdates);
+                    GTA.Menu extraMenu = new GTA.Menu("Extras", new GTA.MenuItem[] { btnShowCredits, btnUpdates });
+                    extraMenu.HasFooter = false;
+                    View.AddMenu(extraMenu);
+                });
             MenuButton btnReload = new MenuButton("Reload", delegate { ParseSettings(); SetupUIElements(); UI.Notify("Speedometer reloaded"); 
                 UpdateMainButtons(4); UpdateCoreButtons(0); UpdateDispButtons(0); UpdateColorButtons(0); });
             MenuButton btnBack = new MenuButton("Save & Exit", delegate { View.CloseAllMenus(); });
-            mainMenuItems = new GTA.MenuItem[] { btnToggle, btnClear, btnCore, btnDisp, btnReload, btnBack };
+            mainMenuItems = new GTA.MenuItem[] { btnToggle, btnClear, btnCore, btnDisp, btnExtra, btnReload, btnBack };
             this.mainMenu = new MySettingsMenu("Speedometer v" + SCRIPT_VERSION, mainMenuItems, this);
             this.mainMenu.HasFooter = false;
 
@@ -271,29 +279,29 @@ namespace GTAVMod_Speedometer
             MenuButton btnFontStyle = new MenuButton("", delegate { fontStyle = ++fontStyle % NUM_FONTS; SetupUIElements(); UpdateDispButtons(2); });
             MenuButton btnFontSize = new MenuButton("Font Size >", delegate
                 {
-                    GTA.MenuButton btnAddSize = new MenuButton("+ Font Size", delegate { fontSize += 0.02f; SetupUIElements(); });
-                    GTA.MenuButton btnSubSize = new MenuButton("- Font Size", delegate { fontSize -= 0.02f; SetupUIElements(); });
+                    MenuButton btnAddSize = new MenuButton("+ Font Size", delegate { fontSize += 0.02f; SetupUIElements(); });
+                    MenuButton btnSubSize = new MenuButton("- Font Size", delegate { fontSize -= 0.02f; SetupUIElements(); });
                     GTA.Menu sizeMenu = new GTA.Menu("Font Size", new GTA.MenuItem[] { btnAddSize, btnSubSize });
                     sizeMenu.HasFooter = false;
                     View.AddMenu(sizeMenu);
                 });
             MenuButton btnPanelSize = new MenuButton("Panel Size >", delegate
                 {
-                    GTA.MenuButton btnAddWidth = new MenuButton("+ Panel Width", delegate { pWidth += 2; SetupUIElements(); });
-                    GTA.MenuButton btnSubWidth = new MenuButton("- Panel Width", delegate { pWidth -= 2; SetupUIElements(); });
-                    GTA.MenuButton btnAddHeight = new MenuButton("+ Panel Height", delegate { pHeight += 2; SetupUIElements(); });
-                    GTA.MenuButton btnSubHeight = new MenuButton("- Panel Height", delegate { pHeight -= 2; SetupUIElements(); });
+                    MenuButton btnAddWidth = new MenuButton("+ Panel Width", delegate { pWidth += 2; SetupUIElements(); });
+                    MenuButton btnSubWidth = new MenuButton("- Panel Width", delegate { pWidth -= 2; SetupUIElements(); });
+                    MenuButton btnAddHeight = new MenuButton("+ Panel Height", delegate { pHeight += 2; SetupUIElements(); });
+                    MenuButton btnSubHeight = new MenuButton("- Panel Height", delegate { pHeight -= 2; SetupUIElements(); });
                     GTA.Menu panelSizeMenu = new GTA.Menu("Panel Size", new GTA.MenuItem[] { btnAddWidth, btnSubWidth, btnAddHeight, btnSubHeight });
                     panelSizeMenu.HasFooter = false;
                     View.AddMenu(panelSizeMenu);
                 });
             MenuButton btnAplyOffset = new MenuButton("Set Offset >", delegate
                 {
-                    GTA.MenuButton btnOffsetUp = new MenuButton("Move Up", delegate { posOffset.Y += -2; SetupUIElements(); });
-                    GTA.MenuButton btnOffsetDown = new MenuButton("Move Down", delegate { posOffset.Y += 2; SetupUIElements(); });
-                    GTA.MenuButton btnOffsetLeft = new MenuButton("Move Left", delegate { posOffset.X += -2; SetupUIElements(); });
-                    GTA.MenuButton btnOffsetRight = new MenuButton("Move Right", delegate { posOffset.X += 2; SetupUIElements(); });
-                    GTA.MenuButton btnOffsetClr = new MenuButton("Clear Offset", delegate { posOffset.X = 0; posOffset.Y = 0; SetupUIElements(); });
+                    MenuButton btnOffsetUp = new MenuButton("Move Up", delegate { posOffset.Y += -2; SetupUIElements(); });
+                    MenuButton btnOffsetDown = new MenuButton("Move Down", delegate { posOffset.Y += 2; SetupUIElements(); });
+                    MenuButton btnOffsetLeft = new MenuButton("Move Left", delegate { posOffset.X += -2; SetupUIElements(); });
+                    MenuButton btnOffsetRight = new MenuButton("Move Right", delegate { posOffset.X += 2; SetupUIElements(); });
+                    MenuButton btnOffsetClr = new MenuButton("Clear Offset", delegate { posOffset.X = 0; posOffset.Y = 0; SetupUIElements(); });
                     GTA.Menu offsetMenu = new GTA.Menu("Set Offset", new GTA.MenuItem[] { btnOffsetUp, btnOffsetDown, btnOffsetLeft, btnOffsetRight, btnOffsetClr });
                     offsetMenu.HasFooter = false;
                     View.AddMenu(offsetMenu);
@@ -476,13 +484,24 @@ namespace GTAVMod_Speedometer
                 Math.Max(Math.Min(color.G + dg, 255), 0), Math.Max(Math.Min(color.B + db, 255), 0));
         }
 
-        bool CheckUpdates()
+        void ShowCredits()
         {
-            WebClient client = new WebClient();
-            Stream stream = client.OpenRead(@"https://raw.githubusercontent.com/LibertyLocked/GTAVMods/release/GTAVMod_Speedometer/version.txt");
-            StreamReader reader = new StreamReader(stream);
-            string latestVer = reader.ReadToEnd();
-            return SCRIPT_VERSION == latestVer;
+            UI.Notify("Speedometer ~r~v" + SCRIPT_VERSION + " ~s~by ~b~libertylocked");
+        }
+
+        void CheckForUpdates()
+        {
+            try
+            {
+                WebClient client = new WebClient();
+                client.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
+                Stream stream = client.OpenRead(URL_VERSIONFILE);
+                StreamReader reader = new StreamReader(stream);
+                string latestVer = reader.ReadToEnd();
+                if (SCRIPT_VERSION == latestVer) UI.Notify("~g~Speedometer is up to date");
+                else UI.Notify("~b~New version is available on gta5-mods.com");
+            }
+            catch { UI.Notify("~r~Failed to check for updates!"); }
         }
 
         #endregion
