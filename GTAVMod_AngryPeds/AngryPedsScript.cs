@@ -1,59 +1,79 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using GTA;
-using GTA.Math;
-using GTA.Native;
 
 namespace GTAV_AngryPeds
 {
     public class AngryPedsScript : Script
     {
-		bool civAngry = false;
-        UIContainer container = null;
+        const float _KILL_RADIUS = 1000f;
+
+        GTA.Menu menu;
 
         public AngryPedsScript()
         {
-            //this.container = new UIContainer(new Point(10, 240), new Size(150, 50), Color.FromArgb(200, 237, 239, 241));
-            //this.container.Items.Add(new UIText("AngryCiv On", new Point(75, 4), 0.5f, Color.Red, 4, true));
+            GTA.MenuButton btnKill = new MenuButton("Kill All", delegate { ExecuteKill(KillMode.Kill); });
+            GTA.MenuButton btnExplode = new MenuButton("Explode All", delegate { ExecuteKill(KillMode.Explode); });
+            GTA.MenuButton btnSafeKill = new MenuButton("Safe Kill", delegate { ExecuteKill(KillMode.SafeKill); });
+            GTA.MenuButton btnDisarmAll = new MenuButton("Disarm All", delegate { ExecuteKill(KillMode.Disarm); });
+            menu = new GTA.Menu("Ultimate Kill", new GTA.MenuItem[]{ btnKill, btnExplode, btnDisarmAll, btnSafeKill });
+            menu.HasFooter = false;
+
+            LeftKey = Keys.NumPad4;
+            RightKey = Keys.NumPad6;
+            UpKey = Keys.NumPad8;
+            DownKey = Keys.NumPad2;
+            ActivateKey = Keys.NumPad5;
+            BackKey = Keys.NumPad0;
 
             this.KeyDown += OnKeyDown;
-            //this.Interval = 200;
-            this.Tick += OnTick;
-
         }
 
         void OnKeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.F7)
             {
-                // Toggle civ angry
-                civAngry = !civAngry;
-                UI.Notify("AngryCiv " + (civAngry ? "On" : "Off"));
+                View.CloseAllMenus();
+                View.AddMenu(menu);
             }
         }
 
-        void OnTick(object sender, EventArgs e)
+        void ExecuteKill(KillMode killMode)
         {
-			if (civAngry)
-			{
-                //this.container.Draw();
-				Ped[] nearbyPeds = GTA.World.GetNearbyPeds(GTA.Game.Player.Character, 500);
-                foreach (Ped p in nearbyPeds)
+            Ped playerPed = Game.Player.Character;
+            Ped[] nearbyPeds = GTA.World.GetNearbyPeds(playerPed, _KILL_RADIUS);
+            foreach (Ped p in nearbyPeds)
+            {
+                if (p.IsPlayer || (playerPed.IsInVehicle() && p.IsInVehicle(playerPed.CurrentVehicle))) continue;
+                if (p.IsAlive)
                 {
-                    // void GIVE_WEAPON_TO_PED(int pedHandle, Hash weaponAssetHash, int ammoCount, BOOL equipNow, BOOL isAmmoLoaded)
-                    Function.Call(Hash.GIVE_WEAPON_TO_PED, (InputArgument)(p), (InputArgument)(int)WeaponHash.Minigun, 9999, (InputArgument)true, (InputArgument)true);
-                    p.Accuracy = 10;
-                    p.Task.ShootAt(Game.Player.Character.Position);
-                    //p.CanSwitchWeapons = true;
-                    //World.CreatePed(new Model(PedHash.ACChimp), p.Position, p.Heading);
-                    //p.Kill();
+                    switch (killMode)
+                    {
+                        case KillMode.Kill:
+                            p.Kill();
+                            break;
+                        case KillMode.Explode:
+                            World.AddOwnedExplosion(playerPed, p.Position, ExplosionType.BigFire, 7f, 0f);
+                            break;
+                        case KillMode.SafeKill:
+                            Relationship rel = p.GetRelationshipWithPed(playerPed);
+                            if (rel == Relationship.Hate || rel == Relationship.Dislike || rel == Relationship.Neutral)
+                                World.AddOwnedExplosion(playerPed, p.Position, ExplosionType.Fire, 1f, 0f);
+                            break;
+                        case KillMode.Disarm:
+                            p.Weapons.RemoveAll();
+                            break;
+                    }
+
                 }
-			}
+            }
         }
+    }
+
+    enum KillMode
+    {
+        Explode,
+        Kill,
+        SafeKill,
+        Disarm,
     }
 }
