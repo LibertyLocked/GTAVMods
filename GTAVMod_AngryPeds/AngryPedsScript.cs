@@ -1,5 +1,7 @@
 ﻿using System.Windows.Forms;
 using GTA;
+using GTA.Math;
+using GTA.Native;
 
 namespace GTAV_AngryPeds
 {
@@ -30,7 +32,7 @@ namespace GTAV_AngryPeds
 
         void OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.F7)
+            if (e.KeyCode == Keys.F5)
             {
                 View.CloseAllMenus();
                 View.AddMenu(menu);
@@ -52,12 +54,14 @@ namespace GTAV_AngryPeds
                             p.Kill();
                             break;
                         case KillMode.Explode:
-                            World.AddOwnedExplosion(playerPed, p.Position, ExplosionType.BigFire, 7f, 0f);
+                            KillPedWithExplosion(playerPed, p, Vector3.Zero, 17, 8f, 0f);
                             break;
                         case KillMode.SafeKill:
                             Relationship rel = p.GetRelationshipWithPed(playerPed);
-                            if (rel == Relationship.Hate || rel == Relationship.Dislike || rel == Relationship.Neutral)
-                                World.AddOwnedExplosion(playerPed, p.Position, ExplosionType.Fire, 1f, 0f);
+                            if (!p.IsInVehicle() && !p.IsGettingIntoAVehicle &&
+                                (rel == Relationship.Hate || rel == Relationship.Dislike || rel == Relationship.Neutral))
+                                KillPedWithExplosion(playerPed, p, new Vector3(0,0,0.5f), 14, 1f, 0f);
+                                //KillPedWithBullet(playerPed, p);
                             break;
                         case KillMode.Disarm:
                             p.Weapons.RemoveAll();
@@ -66,6 +70,20 @@ namespace GTAV_AngryPeds
 
                 }
             }
+        }
+
+        void KillPedWithExplosion(Ped ownerPed, Ped enemyPed, Vector3 posOffset, int explosionType, float radius, float cameraShake)
+        {
+            Vector3 position = enemyPed.Position + posOffset;
+            Function.Call(Hash.ADD_OWNED_EXPLOSION, ownerPed, position.X, position.Y, position.Z, explosionType, radius, true, false, cameraShake);
+        }
+
+        void KillPedWithBullet(Ped ownerPed, Ped enemyPed)
+        {
+            //void SHOOT_SINGLE_BULLET_BETWEEN_COORDS(float x1, float y1, float z1, float x2, float y2, float z2, int damage, BOOL p7, Hash weaponHash, Ped ownerPed, BOOL p10, BOOL p11, float speed) // 867654CBC7606F2C CB7415AC
+            Vector3 enemyPos = enemyPed.Position;
+            Vector3 bulletPos = enemyPos + new Vector3(0,0,2f);
+            Function.Call(Hash.SHOOT_SINGLE_BULLET_BETWEEN_COORDS, bulletPos.X, bulletPos.Y, bulletPos.Z, enemyPos.X, enemyPos.Y, enemyPos.Z, 200, true, (long)WeaponHash.Pistol, ownerPed, true, true, 100f);
         }
     }
 
