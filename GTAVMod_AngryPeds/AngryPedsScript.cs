@@ -13,8 +13,8 @@ namespace GTAV_AngryPeds
 
         public AngryPedsScript()
         {
-            GTA.MenuButton btnKill = new MenuButton("Kill All", delegate { ExecuteKill(KillMode.Kill); });
-            GTA.MenuButton btnExplode = new MenuButton("Explode All", delegate { ExecuteKill(KillMode.Explode); });
+            GTA.MenuButton btnKill = new MenuButton("Kill All", delegate { ExecuteKill(KillMode.KillAll); });
+            GTA.MenuButton btnExplode = new MenuButton("Explode All", delegate { ExecuteKill(KillMode.ExplodeAll); });
             GTA.MenuButton btnSafeKill = new MenuButton("Safe Kill", delegate { ExecuteKill(KillMode.SafeKill); });
             GTA.MenuButton btnDisarmAll = new MenuButton("Disarm All", delegate { ExecuteKill(KillMode.Disarm); });
             menu = new GTA.Menu("Ultimate Kill", new GTA.MenuItem[]{ btnKill, btnExplode, btnDisarmAll, btnSafeKill });
@@ -45,21 +45,21 @@ namespace GTAV_AngryPeds
             Ped[] nearbyPeds = GTA.World.GetNearbyPeds(playerPed, _KILL_RADIUS);
             foreach (Ped p in nearbyPeds)
             {
-                if (p.IsPlayer || (playerPed.IsInVehicle() && p.IsInVehicle(playerPed.CurrentVehicle))) continue;
+                // dont kill friendly peds, players, or peds in player's vehicle
+                if (IsPedFriendly(p) || p.IsPlayer || (playerPed.IsInVehicle() && p.IsInVehicle(playerPed.CurrentVehicle))) continue;
                 if (p.IsAlive)
                 {
                     switch (killMode)
                     {
-                        case KillMode.Kill:
+                        case KillMode.KillAll:
                             p.Kill();
                             break;
-                        case KillMode.Explode:
+                        case KillMode.ExplodeAll:
                             KillPedWithExplosion(playerPed, p, Vector3.Zero, 17, 8f, 0f);
                             break;
                         case KillMode.SafeKill:
                             Relationship rel = p.GetRelationshipWithPed(playerPed);
-                            if (!p.IsInVehicle() && !p.IsGettingIntoAVehicle &&
-                                (rel == Relationship.Hate || rel == Relationship.Dislike || rel == Relationship.Neutral))
+                            if (!p.IsInVehicle() && !p.IsGettingIntoAVehicle && IsPedEnemyOrNeutral(playerPed))
                                 KillPedWithExplosion(playerPed, p, new Vector3(0,0,0.5f), 14, 1f, 0f);
                                 //KillPedWithBullet(playerPed, p);
                             break;
@@ -85,12 +85,24 @@ namespace GTAV_AngryPeds
             Vector3 bulletPos = enemyPos + new Vector3(0,0,2f);
             Function.Call(Hash.SHOOT_SINGLE_BULLET_BETWEEN_COORDS, bulletPos.X, bulletPos.Y, bulletPos.Z, enemyPos.X, enemyPos.Y, enemyPos.Z, 200, true, (long)WeaponHash.Pistol, ownerPed, true, true, 100f);
         }
+
+        bool IsPedFriendly(Ped p)
+        {
+            Relationship rel = p.GetRelationshipWithPed(Game.Player.Character);
+            return (rel == Relationship.Companion || rel == Relationship.Like || rel == Relationship.Respect);
+        }
+
+        bool IsPedEnemyOrNeutral(Ped p)
+        {
+            Relationship rel = p.GetRelationshipWithPed(Game.Player.Character);
+            return (rel == Relationship.Hate || rel == Relationship.Dislike || rel == Relationship.Neutral);
+        }
     }
 
     enum KillMode
     {
-        Explode,
-        Kill,
+        ExplodeAll,
+        KillAll,
         SafeKill,
         Disarm,
     }
