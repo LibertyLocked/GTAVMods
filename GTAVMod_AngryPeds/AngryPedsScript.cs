@@ -59,7 +59,7 @@ namespace GTAV_AngryPeds
                             break;
                         case KillMode.SafeKill:
                             Relationship rel = p.GetRelationshipWithPed(playerPed);
-                            if (!p.IsInVehicle() && !p.IsGettingIntoAVehicle && IsPedEnemyOrNeutral(playerPed))
+                            if (!p.IsInVehicle() && !p.IsGettingIntoAVehicle && IsPedEnemyOrNeutral(p))
                                 KillPedWithExplosion(playerPed, p, new Vector3(0,0,0.5f), 14, 1f, 0f);
                                 //KillPedWithBullet(playerPed, p);
                             break;
