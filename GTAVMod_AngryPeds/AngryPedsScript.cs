@@ -15,9 +15,15 @@ namespace GTAV_AngryPeds
         {
             GTA.MenuButton btnKill = new MenuButton("Kill All", delegate { ExecuteKill(KillMode.KillAll); });
             GTA.MenuButton btnExplode = new MenuButton("Explode All", delegate { ExecuteKill(KillMode.ExplodeAll); });
-            GTA.MenuButton btnSafeKill = new MenuButton("Safe Kill", delegate { ExecuteKill(KillMode.SafeKill); });
+            GTA.MenuButton btnSafeKill = new MenuButton("Electrocute Hostiles", delegate { ExecuteKill(KillMode.SafeKill); });
             GTA.MenuButton btnDisarmAll = new MenuButton("Disarm All", delegate { ExecuteKill(KillMode.Disarm); });
-            menu = new GTA.Menu("Ultimate Kill", new GTA.MenuItem[]{ btnKill, btnExplode, btnDisarmAll, btnSafeKill });
+            GTA.MenuButton btnSpawnTank = new MenuButton("Spawn Tank", delegate { SpawnVehicle(VehicleHash.Rhino); });
+            GTA.MenuButton btnSpawnBuzzard = new MenuButton("Spawn Buzzard", delegate { SpawnVehicle(VehicleHash.Buzzard); });
+            GTA.MenuButton btnSpawnKuruma = new MenuButton("Spawn Kuruma", delegate { SpawnVehicle(VehicleHash.Kuruma2); });
+            menu = new GTA.Menu("Ultimate Kill", new GTA.MenuItem[]
+            { 
+                btnKill, btnExplode, btnDisarmAll, btnSafeKill, btnSpawnTank, btnSpawnBuzzard, btnSpawnKuruma,
+            });
             menu.HasFooter = false;
 
             LeftKey = Keys.NumPad4;
@@ -60,8 +66,10 @@ namespace GTAV_AngryPeds
                         case KillMode.SafeKill:
                             Relationship rel = p.GetRelationshipWithPed(playerPed);
                             if (!p.IsInVehicle() && !p.IsGettingIntoAVehicle && IsPedEnemyOrNeutral(p))
-                                KillPedWithExplosion(playerPed, p, new Vector3(0,0,0.5f), 14, 1f, 0f);
-                                //KillPedWithBullet(playerPed, p);
+                            {
+                                //KillPedWithExplosion(playerPed, p, new Vector3(0, 0, 0.5f), 14, 1f, 0f);
+                                KillPedWithStunGun(playerPed, p, 200);
+                            }
                             break;
                         case KillMode.Disarm:
                             p.Weapons.RemoveAll();
@@ -72,18 +80,27 @@ namespace GTAV_AngryPeds
             }
         }
 
+        void SpawnVehicle(VehicleHash hash)
+        {
+            Vector3 pos = Game.Player.Character.Position + Game.Player.Character.ForwardVector * 6f;
+            //Vehicle veh = Function.Call<Vehicle>(Hash.CREATE_VEHICLE, (ulong)hash, pos.X, pos.Y, pos.Z, heading, true, false);
+            Vehicle veh = World.CreateVehicle(new Model(hash), pos);
+        }
+
         void KillPedWithExplosion(Ped ownerPed, Ped enemyPed, Vector3 posOffset, int explosionType, float radius, float cameraShake)
         {
             Vector3 position = enemyPed.Position + posOffset;
             Function.Call(Hash.ADD_OWNED_EXPLOSION, ownerPed, position.X, position.Y, position.Z, explosionType, radius, true, false, cameraShake);
         }
 
-        void KillPedWithBullet(Ped ownerPed, Ped enemyPed)
+        void KillPedWithStunGun(Ped ownerPed, Ped enemyPed, int damage)
         {
             //void SHOOT_SINGLE_BULLET_BETWEEN_COORDS(float x1, float y1, float z1, float x2, float y2, float z2, int damage, BOOL p7, Hash weaponHash, Ped ownerPed, BOOL p10, BOOL p11, float speed) // 867654CBC7606F2C CB7415AC
-            Vector3 enemyPos = enemyPed.Position;
-            Vector3 bulletPos = enemyPos + new Vector3(0,0,2f);
-            Function.Call(Hash.SHOOT_SINGLE_BULLET_BETWEEN_COORDS, bulletPos.X, bulletPos.Y, bulletPos.Z, enemyPos.X, enemyPos.Y, enemyPos.Z, 200, true, (long)WeaponHash.Pistol, ownerPed, true, true, 100f);
+            Vector3 shootTo = enemyPed.Position;
+            Vector3 shootFrom = enemyPed.Position + enemyPed.ForwardVector * 1f;
+            Model stunGunModel = new Model(WeaponHash.StunGun);
+            Function.Call(Hash.SHOOT_SINGLE_BULLET_BETWEEN_COORDS, shootFrom.X, shootFrom.Y, shootFrom.Z, shootTo.X, shootTo.Y, shootTo.Z,
+                damage, true, stunGunModel.Hash, ownerPed, true, true, 1f);
         }
 
         bool IsPedFriendly(Ped p)
