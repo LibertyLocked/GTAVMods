@@ -13,14 +13,21 @@ namespace GTAV_AngryPeds
 
         public AngryPedsScript()
         {
-            GTA.MenuButton btnKill = new MenuButton("Kill All", delegate { ExecuteKill(KillMode.KillAll); });
-            GTA.MenuButton btnExplode = new MenuButton("Explode All", delegate { ExecuteKill(KillMode.ExplodeAll); });
-            GTA.MenuButton btnSafeKill = new MenuButton("Electrocute Hostiles", delegate { ExecuteKill(KillMode.SafeKill); });
-            GTA.MenuButton btnDisarmAll = new MenuButton("Disarm All", delegate { ExecuteKill(KillMode.Disarm); });
-            GTA.MenuButton btnSpawnTank = new MenuButton("Spawn Tank", delegate { SpawnVehicle(VehicleHash.Rhino); });
-            GTA.MenuButton btnSpawnBuzzard = new MenuButton("Spawn Buzzard", delegate { SpawnVehicle(VehicleHash.Buzzard); });
-            GTA.MenuButton btnSpawnKuruma = new MenuButton("Spawn Kuruma", delegate { SpawnVehicle(VehicleHash.Kuruma2); });
-            menu = new GTA.Menu("Ultimate Kill", new GTA.MenuItem[]
+            GTA.MenuButton btnKill = new MenuButton("Kill All");
+            btnKill.Activated += delegate { ExecuteKill(KillMode.KillAll); };
+            GTA.MenuButton btnExplode = new MenuButton("Explode All");
+            btnExplode.Activated += delegate { ExecuteKill(KillMode.ExplodeAll); };
+            GTA.MenuButton btnSafeKill = new MenuButton("Electrocute Hostiles");
+            btnSafeKill.Activated += delegate { ExecuteKill(KillMode.SafeKill); };
+            GTA.MenuButton btnDisarmAll = new MenuButton("Disarm All");
+            btnDisarmAll.Activated += delegate { ExecuteKill(KillMode.Disarm); };
+            GTA.MenuButton btnSpawnTank = new MenuButton("Spawn Tank");
+            btnSpawnTank.Activated += delegate { SpawnVehicle(VehicleHash.Rhino); };
+            GTA.MenuButton btnSpawnBuzzard = new MenuButton("Spawn Buzzard");
+            btnSpawnBuzzard.Activated += delegate { SpawnVehicle(VehicleHash.Buzzard); };
+            GTA.MenuButton btnSpawnKuruma = new MenuButton("Spawn Kuruma");
+            btnSpawnKuruma.Activated += delegate { SpawnVehicle(VehicleHash.Kuruma2); };
+            menu = new GTA.Menu("Ultimate Kill", new GTA.IMenuItem[]
             { 
                 btnKill, btnExplode, btnDisarmAll, btnSafeKill, btnSpawnTank, btnSpawnBuzzard, btnSpawnKuruma,
             });
